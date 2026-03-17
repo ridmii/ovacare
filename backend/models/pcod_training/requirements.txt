@@ -1,0 +1,57 @@
+# PCOS Detection Model Training Requirements
+# TensorFlow 2.x with GPU support and additional ML libraries (Updated for 2026)
+
+tensorflow==2.20.0
+keras==3.0.5
+
+# Image processing and computer vision
+opencv-python==4.10.0.84
+Pillow==10.4.0
+scikit-image==0.24.0
+albumentations==1.4.15
+
+# Data science and visualization
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.9.2
+seaborn==0.13.2
+plotly==5.22.0
+
+# Machine learning utilities
+scikit-learn==1.5.1
+imbalanced-learn==0.12.3
+
+# Model interpretation and explainability
+grad-cam==1.5.2
+
+# Progress tracking and utilities
+tqdm==4.66.5
+colorama==0.4.6
+
+# Configuration and file handling
+pyyaml==6.0.2
+python-dotenv==1.0.1
+
+# Image augmentation (medical-specific)
+imgaug==0.4.0
+elasticdeform==0.5.0
+
+# Memory optimization
+psutil==6.0.0
+
+# Model export and deployment
+onnx==1.16.2
+tf2onnx==1.16.1
+h5py==3.11.0
+
+# Additional utilities
+joblib==1.4.2
+pathlib
+jupyter==1.0.0
+
+# Production deployment
+flask==2.3.3
+gunicorn==21.2.0
+
+# Model optimization
+tensorflow-model-optimization==0.7.5
