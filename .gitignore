@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node / frontend
+node_modules/
+dist/
+build/
+
+# Model artifacts / outputs (common in this repo)
+**/outputs/
+**/saved_models/
+**/*.h5
+**/*.keras
+**/*.tflite
+
+# Local uploads
+uploads/
+
+# Datasets (recommended not to commit)
+PCOS/
