@@ -1,0 +1,31 @@
+# PCOS Detection Model Training Requirements
+# Install with: pip install -r model_requirements.txt
+
+# Core ML libraries
+tensorflow>=2.10.0
+scikit-learn>=1.1.0
+numpy>=1.21.0
+pandas>=1.4.0
+
+# Image processing
+Pillow>=9.0.0
+opencv-python>=4.5.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Utilities
+pathlib2>=2.3.0
+tqdm>=4.64.0
+
+# Optional: For GPU acceleration (if you have NVIDIA GPU)
+# tensorflow-gpu>=2.10.0
+
+# Optional: For advanced augmentation
+# albumentations>=1.2.0
+# imgaug>=0.4.0
+
+# Development tools
+jupyter>=1.0.0
+ipykernel>=6.0.0
