@@ -1,0 +1,9 @@
+Collecting flatbuffers
+  Using cached flatbuffers-25.12.19-py2.py3-none-any.whl.metadata (1.0 kB)
+Using cached flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+Installing collected packages: flatbuffers
+  Attempting uninstall: flatbuffers
+    Found existing installation: flatbuffers 2.0.7
+    Uninstalling flatbuffers-2.0.7:
+      Successfully uninstalled flatbuffers-2.0.7
+Successfully installed flatbuffers-25.12.19
