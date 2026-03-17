@@ -1,0 +1,159 @@
+{
+  "navbar": {
+    "home": "Home",
+    "aiScan": "AI Scan",
+    "education": "Education",
+    "doctors": "Doctors"
+  },
+  "hero": {
+    "badge": "✨ Revolutionizing Women's Health",
+    "title": "AI-Powered",
+    "subtitle": "PCOS Detection",
+    "description": "Advanced ultrasound analysis powered by artificial intelligence. Get accurate PCOS detection results in minutes, not months.",
+    "startScan": "Start AI Scan",
+    "learnMore": "Learn More",
+    "accuracy": "98.4% Accuracy",
+    "trusted": "Trusted by 500+ Doctors"
+  },
+  "stats": {
+    "scansCompleted": "Scans Completed",
+    "accuracy": "AI Accuracy",
+    "doctorsUsingPlatform": "Doctors Using Platform"
+  },
+  "features": {
+    "title": "Advanced AI Healthcare",
+    "subtitle": "Powered by cutting-edge technology",
+    "upload": {
+      "title": "Smart Image Analysis",
+      "description": "Upload ultrasound images for instant AI-powered PCOS detection with medical-grade accuracy."
+    },
+    "ai": {
+      "title": "Deep Learning Models", 
+      "description": "Our EfficientNetB4-based CNN analyzes ovarian follicles with 98.4% accuracy rate."
+    },
+    "report": {
+      "title": "Comprehensive Reports",
+      "description": "Get detailed analysis reports with follicle count, severity assessment, and treatment recommendations."
+    },
+    "doctors": {
+      "title": "Expert Consultation",
+      "description": "Connect with certified gynecologists for professional consultation and treatment planning."
+    }
+  },
+  "howItWorks": {
+    "title": "How OvaCare Works",
+    "subtitle": "Simple 3-step process for accurate PCOS detection",
+    "step1": {
+      "title": "Upload Ultrasound",
+      "description": "Upload your ultrasound image securely to our HIPAA-compliant platform"
+    },
+    "step2": {
+      "title": "AI Analysis",
+      "description": "Our deep learning model analyzes the image for PCOS indicators in seconds"
+    },
+    "step3": {
+      "title": "Get Results",
+      "description": "Receive detailed analysis with confidence scores and recommendations"
+    }
+  },
+  "testimonials": {
+    "title": "Trusted by Healthcare Professionals",
+    "subtitle": "See what doctors are saying about OvaCare",
+    "testimonial1": {
+      "text": "OvaCare has transformed how I diagnose PCOS. The AI accuracy is remarkable and saves valuable time.",
+      "author": "Dr. Priyanka Silva",
+      "position": "Gynecologist, Colombo General Hospital" 
+    },
+    "testimonial2": {
+      "text": "The detailed reports help me explain conditions to patients more effectively. Excellent tool!",
+      "author": "Dr. Ragini Sharma", 
+      "position": "Women's Health Specialist, Teaching Hospital Kandy"
+    },
+    "testimonial3": {
+      "text": "Fast, accurate, and easy to use. OvaCare is now an essential part of our diagnostic toolkit.",
+      "author": "Dr. Amara Fernando",
+      "position": "Senior Consultant, Private Healthcare"
+    }
+  },
+  "scan": {
+    "title": "AI-Powered PCOS Detection",
+    "subtitle": "Upload your ultrasound scan for instant analysis",
+    "uploadArea": {
+      "title": "Drop your ultrasound image here",
+      "subtitle": "or click to browse files",
+      "formats": "Supports: JPG, PNG, DICOM files up to 10MB",
+      "dragText": "Drop your file here"
+    },
+    "analyzing": "Analyzing your scan...",
+    "analysisComplete": "Analysis Complete!",
+    "results": {
+      "diagnosis": "Diagnosis",
+      "confidence": "Confidence Level",
+      "follicleCount": "Follicle Count",
+      "severity": "Severity",
+      "recommendations": "Recommendations"
+    },
+    "newScan": "Upload New Scan",
+    "downloadReport": "Download Report"
+  },
+  "education": {
+    "title": "PCOS Education Center",
+    "subtitle": "Learn everything about Polycystic Ovary Syndrome",  
+    "whatIs": {
+      "title": "What is PCOS?",
+      "content": "Polycystic Ovary Syndrome (PCOS) is a hormonal disorder affecting women of reproductive age. It's characterized by irregular menstrual periods, excess androgen levels, and polycystic ovaries."
+    },
+    "symptoms": {
+      "title": "Common Symptoms",
+      "list": [
+        "Irregular or missed periods",
+        "Excess hair growth (hirsutism)", 
+        "Acne and oily skin",
+        "Weight gain or difficulty losing weight",
+        "Thinning hair or male-pattern baldness",
+        "Skin darkening (acanthosis nigricans)"
+      ]
+    },
+    "diagnosis": {
+      "title": "Diagnosis Methods",
+      "content": "PCOS diagnosis typically involves physical examination, blood tests to check hormone levels, and ultrasound imaging to examine the ovaries. Our AI system helps accelerate the ultrasound analysis process."
+    },
+    "treatment": {
+      "title": "Treatment Options", 
+      "content": "Treatment focuses on managing symptoms and may include lifestyle changes, medication for irregular periods, fertility treatments, and management of associated conditions like diabetes."
+    }
+  },
+  "doctors": {
+    "title": "Find PCOS Specialists",
+    "subtitle": "Connect with certified gynecologists and women's health experts",
+    "searchPlaceholder": "Search by name, location, or specialty...",
+    "bookConsultation": "Book Consultation",
+    "viewProfile": "View Profile", 
+    "experience": "Years Experience",
+    "patients": "Patients Treated",
+    "rating": "Rating",
+    "location": "Location",
+    "specialization": "Specialization",
+    "languages": "Languages Spoken"
+  },
+  "footer": {
+    "description": "Advanced AI-powered PCOS detection for better women's healthcare outcomes.",
+    "quickLinks": "Quick Links", 
+    "contact": "Contact",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "success": "Success!",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  }
+}

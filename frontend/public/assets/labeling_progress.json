@@ -1,0 +1,11 @@
+{
+  "labeled": {
+    "Image_001.jpg": {
+      "split": "train",
+      "class": "infected",
+      "timestamp": "2026-02-10T12:16:06.451944"
+    }
+  },
+  "total_labeled": 1,
+  "last_session": "2026-02-10T12:16:11.533564"
+}
