@@ -75,7 +75,7 @@ export function Navbar({ activePage, setActivePage }: NavbarProps) {
               </button>
             ))}
             <GradientButton size="sm" onClick={() => setActivePage('scan')}>
-              Start Scan
+              {t('navbar.startScan')}
             </GradientButton>
           </div>
 
@@ -129,7 +129,7 @@ export function Navbar({ activePage, setActivePage }: NavbarProps) {
               
               {/* Mobile Language Switcher */}
               <div className="pt-4 pb-2">
-                <div className="text-sm font-medium text-ovacare-gray mb-2">Language / භාෂාව / மொழி</div>
+                <div className="text-sm font-medium text-ovacare-gray mb-2">{t('navbar.mobileLanguageLabel')}</div>
                 <LanguageSwitcher />
               </div>
 
@@ -141,7 +141,7 @@ export function Navbar({ activePage, setActivePage }: NavbarProps) {
                     setIsMobileMenuOpen(false)
                   }}
                 >
-                  {t('hero.startScan')}
+                  {t('navbar.startScan')}
                 </GradientButton>
               </div>
             </div>

@@ -16,10 +16,31 @@ import {
   Loader2,
 } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
+
+const FLASK_API = process.env.REACT_APP_FLASK_API || 'http://127.0.0.1:5001'
 import { GradientButton } from '../components/GradientButton'
+import {
+  downloadScanReportPdf,
+  ScanReportData,
+} from '../utils/scanReportPdf'
 
 interface ScanPageProps {
   setActivePage: (page: string) => void
+}
+
+interface ScanResults {
+  confidence: number
+  diagnosis: string
+  severity: string
+  follicleCount: number
+  recommendations: string[]
+  technicalDetails: {
+    follicleSize: string
+    ovarianVolume: string
+    morphology?: string
+    modelUsed?: string
+    error?: string
+  }
 }
 
 export function ScanPage({ setActivePage }: ScanPageProps) {
@@ -27,8 +48,11 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
-  const [results, setResults] = useState<any>(null)
+  const [results, setResults] = useState<ScanResults | null>(null)
   const [dragActive, setDragActive] = useState(false)
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -71,7 +95,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
       formData.append('scan', uploadedFile)
 
       // Call the Flask backend API
-      const response = await fetch('http://127.0.0.1:5000/api/upload', {
+      const response = await fetch(`${FLASK_API}/api/upload`, {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - let browser set it with boundary for FormData
@@ -142,6 +166,40 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
     setPreview(null)
     setResults(null)
     setAnalyzing(false)
+    setActionMessage(null)
+    setActionError(null)
+  }
+
+  const buildReportData = (): ScanReportData | null => {
+    if (!results) return null
+
+    return {
+      diagnosis: results.diagnosis,
+      confidence: results.confidence,
+      severity: results.severity,
+      follicleCount: results.follicleCount,
+      recommendations: results.recommendations,
+      technicalDetails: results.technicalDetails,
+      scanImageDataUrl: preview,
+      fileName: uploadedFile?.name,
+    }
+  }
+
+  const handleDownloadPdf = async () => {
+    const reportData = buildReportData()
+    if (!reportData) return
+
+    setDownloadingPdf(true)
+    setActionError(null)
+    try {
+      await downloadScanReportPdf(reportData)
+      setActionMessage('PDF report downloaded successfully.')
+    } catch (error) {
+      console.error('PDF download error:', error)
+      setActionError('Failed to generate PDF report. Please try again.')
+    } finally {
+      setDownloadingPdf(false)
+    }
   }
 
   if (results) {
@@ -216,19 +274,19 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                     <div className="text-2xl font-bold text-ovacare-purple">
                       {results.confidence}%
                     </div>
-                    <div className="text-sm text-ovacare-gray">Confidence</div>
+                    <div className="text-sm text-ovacare-gray">{t('scan.resultsSection.confidenceLabel')}</div>
                   </div>
                   <div className="text-center p-3 bg-white/50 rounded-lg">
                     <div className="text-2xl font-bold text-amber-600">
                       {results.severity}
                     </div>
-                    <div className="text-sm text-ovacare-gray">Severity</div>
+                    <div className="text-sm text-ovacare-gray">{t('scan.resultsSection.severityLabel')}</div>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-ovacare-purple/10 rounded-lg">
                   <span className="font-medium text-ovacare-navy">
-                    Follicle Count:
+                    {t('scan.resultsSection.follicleCountLabel')}:
                   </span>
                   <span className="text-xl font-bold text-ovacare-purple">
                     {results.follicleCount}
@@ -243,17 +301,17 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             <GlassCard className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Brain className="w-6 h-6 text-ovacare-purple" />
-                <h4 className="font-bold text-ovacare-navy">AI Analysis</h4>
+                <h4 className="font-bold text-ovacare-navy">{t('scan.technicalDetails.title')}</h4>
               </div>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span>Follicle Size:</span>
+                  <span>{t('scan.technicalDetails.follicleSize')}</span>
                   <span className="font-medium">
                     {results.technicalDetails.follicleSize}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Ovarian Volume:</span>
+                  <span>{t('scan.technicalDetails.ovarianVolume')}</span>
                   <span className="font-medium">
                     {results.technicalDetails.ovarianVolume}
                   </span>
@@ -267,7 +325,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             <GlassCard className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Activity className="w-6 h-6 text-ovacare-pink" />
-                <h4 className="font-bold text-ovacare-navy">Next Steps</h4>
+                <h4 className="font-bold text-ovacare-navy">{t('scan.nextSteps.title')}</h4>
               </div>
               <ul className="space-y-2 text-sm">
                 {results.recommendations.slice(0, 3).map((rec: string, i: number) => (
@@ -282,21 +340,36 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             <GlassCard className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <BarChart3 className="w-6 h-6 text-ovacare-deep" />
-                <h4 className="font-bold text-ovacare-navy">Report Actions</h4>
+                <h4 className="font-bold text-ovacare-navy">{t('scan.reportActions.title')}</h4>
               </div>
               <div className="space-y-3">
-                <button className="w-full p-2 text-left text-sm bg-white/50 hover:bg-white/70 rounded-lg transition-colors">
-                  📧 Email Report to Doctor
-                </button>
-                <button className="w-full p-2 text-left text-sm bg-white/50 hover:bg-white/70 rounded-lg transition-colors">
-                  📱 Share with OvaCare App
-                </button>
-                <button className="w-full p-2 text-left text-sm bg-white/50 hover:bg-white/70 rounded-lg transition-colors">
-                  📄 Download PDF Report
+                <button
+                  onClick={handleDownloadPdf}
+                  disabled={downloadingPdf}
+                  className="w-full p-2 text-left text-sm bg-white/50 hover:bg-white/70 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
+                >
+                  {downloadingPdf ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-ovacare-purple" />
+                  ) : (
+                    <Download className="w-4 h-4 text-ovacare-purple" />
+                  )}
+                  {t('scan.reportActions.downloadPdf')}
                 </button>
               </div>
             </GlassCard>
           </div>
+
+          {(actionMessage || actionError) && (
+            <div
+              className={`rounded-lg px-4 py-3 text-sm ${
+                actionError
+                  ? 'bg-red-50 text-red-700 border border-red-200'
+                  : 'bg-green-50 text-green-700 border border-green-200'
+              }`}
+            >
+              {actionError || actionMessage}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
@@ -311,7 +384,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
               Learn About PCOS
             </GradientButton>
             <GradientButton variant="outline" size="lg" onClick={reset}>
-              Upload New Scan
+              {t('scan.resultsSection.uploadNewScan')}
             </GradientButton>
           </div>
         </motion.div>
@@ -339,7 +412,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             </div>
             
             <h2 className="text-2xl font-bold text-ovacare-navy mb-4">
-              AI Analysis in Progress
+              {t('scan.analyzeButton')} 🔍
             </h2>
             <p className="text-ovacare-gray mb-8">
               Your ultrasound is being processed by our advanced neural network.
@@ -397,10 +470,10 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
       >
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
-            {t('scan.title')}
+            {t('scan.pageTitle')}
           </h1>
           <p className="text-lg text-ovacare-gray max-w-2xl mx-auto">
-            {t('scan.subtitle')}
+            {t('scan.pageSubtitle')}
           </p>
         </div>
 
@@ -434,18 +507,17 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-ovacare-navy mb-2">
-                      Upload Ultrasound Image
+                      {t('scan.uploadSection.uploadTitle')}
                     </h3>
                     <p className="text-ovacare-gray mb-4">
-                      Drag and drop your image here, or click to browse
+                      {t('scan.uploadSection.dragInstruction')}
                     </p>
                   </div>
 
                   <div className="flex flex-wrap gap-2 justify-center text-xs text-ovacare-gray">
-                    <span className="px-2 py-1 bg-white/50 rounded">JPG</span>
-                    <span className="px-2 py-1 bg-white/50 rounded">PNG</span>
-                    <span className="px-2 py-1 bg-white/50 rounded">DICOM</span>
-                    <span className="px-2 py-1 bg-white/50 rounded">TIFF</span>
+                    {(t('scan.uploadSection.supportedFileTypes', { returnObjects: true }) as string[]).map((format) => (
+                      <span key={format} className="px-2 py-1 bg-white/50 rounded">{format}</span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -455,7 +527,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
               {/* Preview */}
               <GlassCard className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-ovacare-navy">Image Preview</h3>
+                  <h3 className="font-bold text-ovacare-navy">{t('scan.uploadSection.previewLabel')}</h3>
                   <button
                     onClick={reset}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -486,32 +558,30 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
               {/* Analysis Options */}
               <GlassCard className="p-6">
                 <h3 className="font-bold text-ovacare-navy mb-6">
-                  Analysis Options
+                  {t('scan.analysisOptions.title')}
                 </h3>
 
                 <div className="space-y-4 mb-8">
                   <div className="p-4 bg-white/50 rounded-lg border border-ovacare-purple/20">
                     <div className="flex items-center gap-3 mb-2">
                       <CheckCircle className="w-5 h-5 text-ovacare-purple" />
-                      <span className="font-medium">Standard Analysis</span>
+                      <span className="font-medium">{t('scan.analysisOptions.standard.name')}</span>
                     </div>
                     <p className="text-sm text-ovacare-gray pl-8">
-                      Follicle detection, PCOS pattern recognition, confidence
-                      scoring
+                      {t('scan.analysisOptions.standard.description')}
                     </p>
                   </div>
 
                   <div className="p-4 bg-gray-50 rounded-lg opacity-60">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
-                      <span className="font-medium">Advanced Analysis</span>
+                      <span className="font-medium">{t('scan.analysisOptions.advanced.name')}</span>
                       <span className="text-xs bg-ovacare-purple text-white px-2 py-1 rounded">
-                        PRO
+                        {t('scan.analysisOptions.advanced.badge')}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 pl-8">
-                      Hormone level estimation, cycle prediction, treatment
-                      recommendations
+                      {t('scan.analysisOptions.advanced.description')}
                     </p>
                   </div>
                 </div>
@@ -523,11 +593,11 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                     onClick={simulateAnalysis}
                   >
                     <Brain className="w-5 h-5 mr-2" />
-                    Start AI Analysis
+                    {t('scan.analysisOptions.startAnalysis')}
                   </GradientButton>
                   
                   <button className="w-full p-3 text-ovacare-purple border border-ovacare-purple/20 rounded-lg hover:bg-ovacare-purple/5 transition-colors">
-                    Save for Later Analysis
+                    {t('scan.analysisOptions.saveForLater')}
                   </button>
                 </div>
               </GlassCard>
@@ -536,35 +606,23 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
 
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <GlassCard className="p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <h4 className="font-bold text-ovacare-navy mb-2">HIPAA Compliant</h4>
-              <p className="text-sm text-ovacare-gray">
-                Your medical data is encrypted and secure
-              </p>
-            </GlassCard>
-
-            <GlassCard className="p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                <Brain className="w-6 h-6 text-blue-600" />
-              </div>
-              <h4 className="font-bold text-ovacare-navy mb-2">98.5% Accuracy</h4>
-              <p className="text-sm text-ovacare-gray">
-                Validated against 50,000+ clinical cases
-              </p>
-            </GlassCard>
-
-            <GlassCard className="p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-purple-100 flex items-center justify-center mb-4">
-                <Activity className="w-6 h-6 text-purple-600" />
-              </div>
-              <h4 className="font-bold text-ovacare-navy mb-2">Instant Results</h4>
-              <p className="text-sm text-ovacare-gray">
-                Get your analysis in under 60 seconds
-              </p>
-            </GlassCard>
+            {(t('scan.infoCards', { returnObjects: true }) as Array<{
+              icon: string
+              title: string
+              description: string
+            }>).map((card, i) => (
+              <GlassCard key={i} className="p-6 text-center">
+                <div className="w-12 h-12 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
+                  {card.icon === 'checkCircle' && <CheckCircle className="w-6 h-6 text-green-600" />}
+                  {card.icon === 'brain' && <Brain className="w-6 h-6 text-blue-600" />}
+                  {card.icon === 'activity' && <Activity className="w-6 h-6 text-purple-600" />}
+                </div>
+                <h4 className="font-bold text-ovacare-navy mb-2">{card.title}</h4>
+                <p className="text-sm text-ovacare-gray">
+                  {card.description}
+                </p>
+              </GlassCard>
+            ))}
           </div>
         </div>
       </motion.div>

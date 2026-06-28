@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 from PIL import Image
 import os
@@ -16,19 +15,21 @@ def validate_image(filepath: str) -> bool:
 def preprocess_image(filepath: str, target_size: Tuple[int, int] = (380, 380)) -> np.ndarray:
     """Preprocess image for PCOS classification model (EfficientNetB4)."""
     try:
-        # Load image
-        image = cv2.imread(filepath)
-        if image is None:
-            raise ValueError("Could not load image")
+        # Load image using PIL
+        image = Image.open(filepath)
         
-        # Convert BGR to RGB
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # Convert to RGB if needed
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
         
         # Resize image to EfficientNetB4 input size
-        image = cv2.resize(image, target_size)
+        image = image.resize(target_size, Image.Resampling.LANCZOS)
+        
+        # Convert to numpy array
+        image = np.array(image, dtype=np.float32)
         
         # Normalize pixel values to [0, 1]
-        image = image.astype(np.float32) / 255.0
+        image = image / 255.0
         
         # Apply ImageNet normalization (CRITICAL for EfficientNet)
         mean = np.array([0.485, 0.456, 0.406])
@@ -45,9 +46,15 @@ def preprocess_image(filepath: str, target_size: Tuple[int, int] = (380, 380)) -
 def enhance_ultrasound_image(image: np.ndarray) -> np.ndarray:
     """Apply ultrasound-specific image enhancements."""
     try:
-        # Convert to grayscale for ultrasound processing
-        if len(image.shape) == 3:
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        # Simple enhancement - increase contrast using numpy
+        if len(image.shape) == 4:
+            image = image.squeeze(0)
+        
+        # Simple contrast stretching
+        img_min = image.min()
+        img_max = image.max()
+        if img_max > img_min:
+            image = (image - img_min) / (img_max - img_min)
         else:
             gray = image.copy()
         

@@ -1,27 +1,73 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import {
-  Brain,
-  FileText,
-  BookOpen,
-  Stethoscope,
-  Upload,
-  CheckCircle,
-  ArrowRight,
-  Star,
-} from 'lucide-react'
+import { CheckCircle, Star } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 import { GradientButton } from '../components/GradientButton'
 import { FloatingElements } from '../components/FloatingElements'
 import { AnimatedCounter } from '../components/AnimatedCounter'
+import { Emoji } from '../components/Emoji'
+
+const FEATURE_COLORS = [
+  'text-ovacare-purple',
+  'text-ovacare-pink',
+  'text-ovacare-deep',
+  'text-ovacare-coral',
+]
 
 interface HomePageProps {
   setActivePage: (page: string) => void
 }
 
 export function HomePage({ setActivePage }: HomePageProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const language = i18n.resolvedLanguage || i18n.language
+
+  const features = useMemo(
+    () =>
+      (
+        t('home.features', { returnObjects: true }) as Array<{
+          icon: string
+          title: string
+          description: string
+        }>
+      ).map((feature, index) => ({
+        icon: feature.icon,
+        title: feature.title,
+        desc: feature.description,
+        color: FEATURE_COLORS[index] || FEATURE_COLORS[0],
+      })),
+    [t, language]
+  )
+
+  const processSteps = useMemo(
+    () =>
+      t('home.processSection.steps', { returnObjects: true }) as Array<{
+        number: string
+        title: string
+        description: string
+        icon: string
+      }>,
+    [t, language]
+  )
+
+  const stats = useMemo(
+    () =>
+      t('home.stats', { returnObjects: true }) as Array<{
+        value: string
+        label: string
+      }>,
+    [t, language]
+  )
+
+  const testimonials = useMemo(
+    () =>
+      t('home.trustSection.testimonials', { returnObjects: true }) as Array<{
+        quote: string
+        author: string
+      }>,
+    [t, language]
+  )
   
   const containerVariants = {
     hidden: {
@@ -68,39 +114,40 @@ export function HomePage({ setActivePage }: HomePageProps) {
                 duration: 0.8,
               }}
             >
-              <div className="inline-block px-4 py-1.5 rounded-full bg-white/50 backdrop-blur-sm border border-ovacare-purple/20 text-ovacare-purple text-sm font-semibold mb-6 shadow-sm">
-                {t('hero.badge')}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/50 backdrop-blur-sm border border-ovacare-purple/20 text-ovacare-purple text-sm font-semibold mb-6 shadow-sm">
+                <Emoji text="✨" size={16} />
+                <span>{t('home.hero.badge').replace(/^✨\s*/, '')}</span>
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-ovacare-navy">
-                {t('hero.title')} <br />
+                {t('home.hero.title')} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-ovacare-purple to-ovacare-deep">
-                  {t('hero.subtitle')}
+                  {t('home.hero.titleHighlight')}
                 </span>
               </h1>
               <p className="text-xl text-ovacare-gray mb-8 leading-relaxed max-w-lg">
-                {t('hero.description')}
+                {t('home.hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <GradientButton size="lg" onClick={() => setActivePage('scan')}>
-                  {t('hero.startScan')}
+                  {t('home.hero.primaryButton')}
                 </GradientButton>
                 <GradientButton
                   variant="outline"
                   size="lg"
                   onClick={() => setActivePage('education')}
                 >
-                  {t('hero.learnMore')}
+                  {t('home.hero.secondaryButton')}
                 </GradientButton>
               </div>
 
               <div className="mt-12 flex items-center gap-8 text-sm font-medium text-ovacare-gray">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  {t('hero.accuracy')}
+                  {t('home.hero.accuracy')}
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-ovacare-purple" />
-                  {t('hero.trusted')}
+                  {t('home.hero.trusted')}
                 </div>
               </div>
             </motion.div>
@@ -194,10 +241,10 @@ export function HomePage({ setActivePage }: HomePageProps) {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium">
-                      Analysis Complete
+                      {t('home.hero.demoCardStatus')}
                     </p>
                     <p className="text-sm font-bold text-ovacare-navy">
-                      PCOS Detected
+                      {t('home.hero.demoCardDetected')}
                     </p>
                   </div>
                 </motion.div>
@@ -212,10 +259,10 @@ export function HomePage({ setActivePage }: HomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
-              {t('features.title')}
+              {t('home.featuresSection.sectionTitle')}
             </h2>
             <p className="text-lg text-ovacare-gray max-w-2xl mx-auto">
-              {t('features.subtitle')}
+              {t('home.featuresSection.sectionSubtitle')}
             </p>
           </div>
 
@@ -230,37 +277,14 @@ export function HomePage({ setActivePage }: HomePageProps) {
             }}
           >
             {[
-              {
-                icon: Brain,
-                title: t('features.ai.title'),
-                desc: t('features.ai.description'),
-                color: 'text-ovacare-purple',
-              },
-              {
-                icon: FileText,
-                title: t('features.report.title'),
-                desc: t('features.report.description'),
-                color: 'text-ovacare-pink',
-              },
-              {
-                icon: BookOpen,
-                title: t('education.title'),
-                desc: t('education.subtitle'),
-                color: 'text-ovacare-deep',
-              },
-              {
-                icon: Stethoscope,
-                title: t('features.doctors.title'),
-                desc: t('features.doctors.description'),
-                color: 'text-ovacare-coral',
-              },
+              ...features,
             ].map((feature, i) => (
               <motion.div key={i} variants={itemVariants}>
                 <GlassCard className="p-8 h-full" hover glow>
                   <div
                     className={`w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center mb-6 ${feature.color}`}
                   >
-                    <feature.icon className="w-6 h-6" />
+                    <Emoji text={feature.icon} size={28} />
                   </div>
                   <h3 className="text-xl font-bold text-ovacare-navy mb-3">
                     {feature.title}
@@ -281,10 +305,10 @@ export function HomePage({ setActivePage }: HomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
-              {t('howItWorks.title')}
+              {t('home.processSection.title')}
             </h2>
             <p className="text-lg text-ovacare-gray">
-              {t('howItWorks.subtitle')}
+              {t('home.processSection.subtitle')}
             </p>
           </div>
 
@@ -309,27 +333,8 @@ export function HomePage({ setActivePage }: HomePageProps) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {[
-                {
-                  step: 1,
-                  icon: Upload,
-                  title: t('howItWorks.step1.title'),
-                  desc: t('howItWorks.step1.description'),
-                },
-                {
-                  step: 2,
-                  icon: Brain,
-                  title: t('howItWorks.step2.title'),
-                  desc: t('howItWorks.step2.description'),
-                },
-                {
-                  step: 3,
-                  icon: CheckCircle,
-                  title: t('howItWorks.step3.title'),
-                  desc: t('howItWorks.step3.description'),
-                },
-              ].map((item, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+              {processSteps.map((step, i) => (
                 <motion.div
                   key={i}
                   className="relative flex flex-col items-center text-center"
@@ -350,14 +355,14 @@ export function HomePage({ setActivePage }: HomePageProps) {
                 >
                   <div className="w-24 h-24 rounded-full bg-white shadow-xl flex items-center justify-center mb-6 relative z-10 border-4 border-white">
                     <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-ovacare-purple to-ovacare-deep flex items-center justify-center text-white font-bold shadow-md">
-                      {item.step}
+                      {step.number}
                     </div>
-                    <item.icon className="w-10 h-10 text-ovacare-purple" />
+                    <Emoji text={step.icon} size={36} />
                   </div>
                   <h3 className="text-xl font-bold text-ovacare-navy mb-3">
-                    {item.title}
+                    {step.title}
                   </h3>
-                  <p className="text-ovacare-gray max-w-xs">{item.desc}</p>
+                  <p className="text-ovacare-gray max-w-xs">{step.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -370,36 +375,13 @@ export function HomePage({ setActivePage }: HomePageProps) {
         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              {
-                val: 98.4,
-                suffix: '%',
-                label: 'Accuracy Rate (Clinical Validation)',
-                decimals: 1,
-              },
-              {
-                val: 50000,
-                suffix: '+',
-                label: 'Scans Analyzed',
-              },
-              {
-                val: 500,
-                suffix: '+',
-                label: 'Partner Doctors',
-              },
-              {
-                val: 4.9,
-                suffix: '/5',
-                label: 'User Rating',
-                decimals: 1,
-              },
-            ].map((stat, i) => (
+            {stats.map((stat, i) => (
               <div key={i} className="p-4">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                   <AnimatedCounter
-                    end={stat.val}
-                    suffix={stat.suffix}
-                    decimals={stat.decimals}
+                    end={parseFloat(stat.value.replace(/[^0-9.]/g, ''))}
+                    suffix={stat.value.replace(/[0-9.]/g, '')}
+                    decimals={stat.value.includes('.') ? 1 : 0}
                   />
                 </div>
                 <div className="text-ovacare-purple font-medium">
@@ -415,52 +397,32 @@ export function HomePage({ setActivePage }: HomePageProps) {
       <section className="py-24 bg-white/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
-              {t('testimonials.title')}
+            <h2 className="text-3xl md:text-4xl font-bold text-ovacare-navy">
+              {t('home.trustSection.title')}
             </h2>
-            <p className="text-lg text-ovacare-gray">
-              {t('testimonials.subtitle')}
-            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: t('testimonials.testimonial1.author'),
-                role: t('testimonials.testimonial1.position'),
-                quote: t('testimonials.testimonial1.text'),
-                stars: 5,
-              },
-              {
-                name: t('testimonials.testimonial2.author'),
-                role: t('testimonials.testimonial2.position'),
-                quote: t('testimonials.testimonial2.text'),
-                stars: 5,
-              },
-              {
-                name: t('testimonials.testimonial3.author'),
-                role: t('testimonials.testimonial3.position'),
-                quote: t('testimonials.testimonial3.text'),
-                stars: 5,
-              },
-            ].map((t, i) => (
-              <GlassCard key={i} className="p-8" hover>
-                <div className="flex gap-1 text-yellow-400 mb-4">
-                  {[...Array(5)].map((_, si) => (
-                    <Star
-                      key={si}
-                      className={`w-4 h-4 ${si < t.stars ? 'fill-current' : 'text-gray-300'}`}
-                    />
-                  ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {testimonials.map((testimonial, i) => (
+              <GlassCard
+                key={i}
+                className="p-6 aspect-square flex flex-col justify-between hover:shadow-lg transition-shadow"
+                hover
+              >
+                <div>
+                  <div className="flex gap-1 text-yellow-400 mb-4">
+                    {[...Array(5)].map((_, si) => (
+                      <Star key={si} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-ovacare-gray text-sm leading-relaxed italic line-clamp-6">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </p>
                 </div>
-                <p className="text-ovacare-gray mb-6 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-600 font-bold text-sm">
-                    {t.name.charAt(0)}
+                <div className="flex items-center gap-3 pt-4 mt-4 border-t border-gray-100">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-ovacare-purple/20 to-ovacare-pink/20 flex items-center justify-center text-ovacare-navy font-bold text-sm shrink-0">
+                    {testimonial.author.charAt(0)}
                   </div>
-                  <div>
-                    <div className="font-bold text-ovacare-navy">{t.name}</div>
-                    <div className="text-xs text-ovacare-purple">{t.role}</div>
-                  </div>
+                  <div className="font-bold text-ovacare-navy text-sm">{testimonial.author}</div>
                 </div>
               </GlassCard>
             ))}
@@ -475,34 +437,33 @@ export function HomePage({ setActivePage }: HomePageProps) {
 
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-ovacare-navy mb-6">
-            Ready to Take Control of Your Health?
+            {t('home.ctaSection.title')}
           </h2>
           <p className="text-xl text-ovacare-gray mb-10">
-            Join thousands of women who have used OvaCare for early PCOS
-            detection and management.
+            {t('home.ctaSection.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
             <GradientButton size="lg" onClick={() => setActivePage('scan')}>
-              Start Your Free Scan
+              {t('home.ctaSection.primaryButton')}
             </GradientButton>
             <GradientButton
               variant="outline"
               size="lg"
               onClick={() => setActivePage('doctors')}
             >
-              Find a Specialist
+              {t('home.ctaSection.secondaryButton')}
             </GradientButton>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6 text-sm text-ovacare-gray opacity-70">
             <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" /> HIPAA Compliant
+              <CheckCircle className="w-4 h-4" /> {t('home.compliance.hipaa')}
             </span>
             <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" /> FDA Registered
+              <CheckCircle className="w-4 h-4" /> {t('home.compliance.fda')}
             </span>
             <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" /> 256-bit Encryption
+              <CheckCircle className="w-4 h-4" /> {t('home.compliance.encryption')}
             </span>
           </div>
         </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
+import html2pdf from 'html2pdf.js'
 import {
   BookOpen,
   Play,
@@ -24,36 +26,297 @@ interface EducationPageProps {
   setActivePage: (page: string) => void
 }
 
+const PCOS_BLOG_ARTICLES = [
+  {
+    title: 'PCOS and Insomnia',
+    excerpt: 'Understand the link between PCOS and sleep problems, plus tips for better rest.',
+    url: 'https://www.clairepettitt.com/blog/pcos-and-insomnia',
+    source: 'Claire Pettitt',
+    image: '/assets/blogs/insomnia.jpg',
+  },
+  {
+    title: 'PCOS and IBS',
+    excerpt: 'How digestive health connects to PCOS and what you can do to manage symptoms.',
+    url: 'https://www.clairepettitt.com/blog/pcos-and-ibs',
+    source: 'Claire Pettitt',
+    image: '/assets/blogs/ibs.jpg',
+  },
+  {
+    title: '15 PCOS-Friendly Vegetarian Recipes',
+    excerpt: 'Nutritious vegetarian meal ideas designed to support hormonal balance.',
+    url: 'https://www.clairepettitt.com/blog/15-pcos-friendly-vegetarian-recipes',
+    source: 'Claire Pettitt',
+    image: '/assets/blogs/vegetarian-recipes.jpg',
+  },
+  {
+    title: 'PCOS-Friendly Soups',
+    excerpt: 'Warm, nourishing soup recipes that fit a PCOS-friendly eating plan.',
+    url: 'https://www.clairepettitt.com/blog/pcos-friendly-soups',
+    source: 'Claire Pettitt',
+    image: '/assets/blogs/soups.jpg',
+  },
+] as const
+
+const PCOS_SUCCESS_STORIES = [
+  {
+    title: 'Olympic Athlete Beat PCOS',
+    excerpt: 'How an Olympic athlete managed PCOS and continued performing at the highest level.',
+    url: 'https://www.pcosnutrition.com/olympic-athlete-beat-pcos/?srsltid=AfmBOop2S90O84iIW0w4JdudLcMa3NC_VzSQISFe4rXz9UxIDRCQwY0-',
+    source: 'PCOS Nutrition',
+    image: '/assets/blogs/olympic-athlete.jpg',
+  },
+  {
+    title: 'My PCOS Success Story',
+    excerpt: 'A personal journey of overcoming PCOS through lifestyle changes and persistence.',
+    url: 'https://thesmooco.com/blogs/blog/my-pcos-success-story?srsltid=AfmBOorvRf7NUJiB_oyG9RrP7haZUqJ1JEFWpBkdZo0VwIedwpl317IL',
+    source: 'The Smooco',
+    image: '/assets/blogs/success-story.jpg',
+  },
+] as const
+
+function BlogCardImage({
+  image,
+  alt,
+  source,
+  variant = 'blog',
+}: {
+  image: string
+  alt: string
+  source: string
+  variant?: 'blog' | 'story'
+}) {
+  return (
+    <div className="relative aspect-video overflow-hidden bg-ovacare-purple/10">
+      <img
+        src={image}
+        alt={alt}
+        loading="lazy"
+        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <div
+        className={`absolute inset-0 bg-gradient-to-t ${
+          variant === 'story'
+            ? 'from-green-900/70 via-green-900/20 to-transparent'
+            : 'from-ovacare-navy/70 via-ovacare-navy/20 to-transparent'
+        }`}
+      />
+      <span className="absolute bottom-3 left-4 text-xs font-semibold uppercase tracking-wide text-white/95">
+        {source}
+      </span>
+    </div>
+  )
+}
+
+// PDF generator for meal plan
+const generateMealPlanPDF = () => {
+  const element = document.createElement('div')
+  element.innerHTML = `
+    <div style="padding: 40px; font-family: Arial, sans-serif; background: white;">
+      <h1 style="color: #1a365d; font-size: 32px; margin-bottom: 10px;">PCOS-Friendly 7-Day Meal Plan</h1>
+      <p style="color: #4a5568; font-size: 14px; margin-bottom: 20px;">Sri Lankan Traditional Foods for Hormonal Balance</p>
+      
+      <hr style="border: none; border-top: 2px solid #e2e8f0; margin: 20px 0;">
+      
+      <h2 style="color: #2d3748; font-size: 18px; margin-bottom: 15px;">Weekly Schedule</h2>
+      
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Monday:</strong>
+          <span style="color: #4a5568;">Red rice with fish curry and gotukola sambol</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Tuesday:</strong>
+          <span style="color: #4a5568;">Dhal curry with brown bread and pol sambol</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Wednesday:</strong>
+          <span style="color: #4a5568;">Kohila curry with red rice and tempered vegetables</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Thursday:</strong>
+          <span style="color: #4a5568;">Mung bean curry with string hoppers</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Friday:</strong>
+          <span style="color: #4a5568;">Spiced fish with steamed jackfruit curry</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Saturday:</strong>
+          <span style="color: #4a5568;">Bitter gourd curry with red rice and chicken</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Sunday:</strong>
+          <span style="color: #4a5568;">Mixed vegetable curry with coconut roti</span>
+        </div>
+      </div>
+      
+      <hr style="border: none; border-top: 2px solid #e2e8f0; margin: 20px 0;">
+      
+      <div style="background: #fffaf0; border: 1px solid #fed7aa; padding: 15px; border-radius: 8px; margin-top: 30px;">
+        <p style="color: #92400e; font-size: 12px; margin: 0;">
+          <strong>Disclaimer:</strong> This meal plan is for informational purposes. Always consult with your healthcare provider or registered dietitian before making significant dietary changes.
+        </p>
+      </div>
+      
+      <div style="margin-top: 30px; text-align: center; color: #a0aec0; font-size: 12px;">
+        <p>Generated by OvaCare - Your PCOS Management Companion</p>
+        <p>Date: ${new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+  `
+
+  const options = {
+    margin: 10,
+    filename: `PCOS_7Day_Meal_Plan_${new Date().getTime()}.pdf`,
+    image: { type: 'png' as const, quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { orientation: 'portrait' as const, unit: 'mm' as const, format: 'a4' as const },
+  }
+
+  html2pdf().set(options).from(element).save()
+}
+
+// PDF generator for exercise program
+const generateExerciseProgramPDF = () => {
+  const element = document.createElement('div')
+  element.innerHTML = `
+    <div style="padding: 40px; font-family: Arial, sans-serif; background: white;">
+      <h1 style="color: #1a365d; font-size: 32px; margin-bottom: 10px;">PCOS-Friendly 4-Week Exercise Program</h1>
+      <p style="color: #4a5568; font-size: 14px; margin-bottom: 20px;">Beginner-Friendly Workout Plan</p>
+      
+      <hr style="border: none; border-top: 2px solid #e2e8f0; margin: 20px 0;">
+      
+      <h2 style="color: #2d3748; font-size: 18px; margin-bottom: 15px;">Weekly Breakdown</h2>
+      
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Week 1:</strong>
+          <span style="color: #4a5568;">Cardio: 15 min, Strength: 2x/week, HIIT: Optional</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Week 2:</strong>
+          <span style="color: #4a5568;">Cardio: 20 min, Strength: 2x/week, HIIT: Optional</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Week 3:</strong>
+          <span style="color: #4a5568;">Cardio: 25 min, Strength: 2x/week, HIIT: 1x/week</span>
+        </div>
+        <div style="display: flex; padding: 12px; margin: 8px 0; background: #f7fafc; border-left: 4px solid #7c2d7f;">
+          <strong style="color: #7c2d7f; width: 150px; min-width: 150px;">Week 4:</strong>
+          <span style="color: #4a5568;">Cardio: 30 min, Strength: 2x/week, HIIT: 1x/week</span>
+        </div>
+      </div>
+
+      <h2 style="color: #2d3748; font-size: 18px; margin: 25px 0 15px 0;">Exercise Types</h2>
+      
+      <div style="margin-bottom: 20px;">
+        <h3 style="color: #7c2d7f; font-size: 16px; margin: 15px 0 10px 0;">Strength Training (2-3x/week)</h3>
+        <p style="color: #4a5568;">Builds muscle mass, improves metabolism, enhances insulin sensitivity</p>
+        <p style="color: #4a5568; margin: 5px 0;">Examples: Weightlifting, Resistance bands, Bodyweight exercises</p>
+        
+        <h3 style="color: #7c2d7f; font-size: 16px; margin: 15px 0 10px 0;">Cardio Exercise (150 min/week)</h3>
+        <p style="color: #4a5568;">Improves heart health, supports weight management, boosts mood</p>
+        <p style="color: #4a5568; margin: 5px 0;">Examples: Brisk walking, Swimming, Cycling</p>
+        
+        <h3 style="color: #7c2d7f; font-size: 16px; margin: 15px 0 10px 0;">HIIT Training (1-2x/week)</h3>
+        <p style="color: #4a5568;">Time efficient, metabolic boost, helps hormone balance</p>
+        <p style="color: #4a5568; margin: 5px 0;">Examples: Interval running, Circuit training, Tabata</p>
+      </div>
+      
+      <hr style="border: none; border-top: 2px solid #e2e8f0; margin: 20px 0;">
+      
+      <div style="background: #fffaf0; border: 1px solid #fed7aa; padding: 15px; border-radius: 8px; margin-top: 30px;">
+        <p style="color: #92400e; font-size: 12px; margin: 0;">
+          <strong>Important Notes:</strong>
+          <br/>• Start at your own pace and gradually increase intensity
+          <br/>• Consult your healthcare provider before starting a new exercise program
+          <br/>• Stay hydrated and listen to your body
+          <br/>• Rest days are important for recovery
+        </p>
+      </div>
+      
+      <div style="margin-top: 30px; text-align: center; color: #a0aec0; font-size: 12px;">
+        <p>Generated by OvaCare - Your PCOS Management Companion</p>
+        <p>Date: ${new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+  `
+
+  const options = {
+    margin: 10,
+    filename: `PCOS_Exercise_Program_${new Date().getTime()}.pdf`,
+    image: { type: 'png' as const, quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { orientation: 'portrait' as const, unit: 'mm' as const, format: 'a4' as const },
+  }
+
+  html2pdf().set(options).from(element).save()
+}
+
+// Add to calendar function
+const addExerciseProgramToCalendar = () => {
+  const startDate = new Date()
+  const endDate = new Date(startDate.getTime() + 28 * 24 * 60 * 60 * 1000) // 4 weeks later
+
+  const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OvaCare//PCOS Exercise Program//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PCOS Exercise Program
+X-WR-TIMEZONE:UTC
+BEGIN:VEVENT
+DTSTART:${formatDateForICS(startDate)}
+DTEND:${formatDateForICS(endDate)}
+DTSTAMP:${formatDateForICS(new Date())}
+UID:pcos-exercise-${new Date().getTime()}@ovacare.com
+CREATED:${formatDateForICS(new Date())}
+DESCRIPTION:PCOS-Friendly 4-Week Beginner Exercise Program\\n\\nWeekly breakdown:\\nWeek 1: Cardio 15 min\\, Strength 2x/week\\nWeek 2: Cardio 20 min\\, Strength 2x/week\\nWeek 3: Cardio 25 min\\, Strength 2x/week\\, HIIT 1x/week\\nWeek 4: Cardio 30 min\\, Strength 2x/week\\, HIIT 1x/week
+LOCATION:Home
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:PCOS 4-Week Exercise Program
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR`
+
+  const blob = new Blob([icsContent], { type: 'text/calendar' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `PCOS_Exercise_Program_${new Date().getTime()}.ics`
+  link.click()
+  window.URL.revokeObjectURL(url)
+}
+
+// Helper function to format date for ICS format
+const formatDateForICS = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}T${hours}${minutes}${seconds}Z`
+}
+
 export function EducationPage({ setActivePage }: EducationPageProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('overview')
 
-  const tabs = [
-    {
-      id: 'overview',
-      label: 'PCOS Overview',
-      icon: BookOpen,
-    },
-    {
-      id: 'nutrition',
-      label: 'Nutrition',
-      icon: Apple,
-    },
-    {
-      id: 'exercise',
-      label: 'Exercise',
-      icon: Dumbbell,
-    },
-    {
-      id: 'mental',
-      label: 'Mental Health',
-      icon: Heart,
-    },
-    {
-      id: 'research',
-      label: 'Latest Research',
-      icon: Brain,
-    },
-  ]
+  const iconMap: Record<string, React.ReactNode> = {
+    BookOpen: <BookOpen className="w-4 h-4" />,
+    Apple: <Apple className="w-4 h-4" />,
+    Dumbbell: <Dumbbell className="w-4 h-4" />,
+    Heart: <Heart className="w-4 h-4" />,
+    Brain: <Brain className="w-4 h-4" />,
+  }
+
+  const tabs = t('education.tabs', { returnObjects: true }) as Array<{
+    id: string
+    label: string
+    icon: string
+  }>
 
   const containerVariants = {
     hidden: {
@@ -93,11 +356,10 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
-            PCOS Education Hub
+            {t('education.pageTitle')}
           </h1>
           <p className="text-lg text-ovacare-gray max-w-2xl mx-auto">
-            Comprehensive resources to understand and manage PCOS. Expert-curated
-            content to empower your health journey.
+            {t('education.pageSubtitle')}
           </p>
         </div>
 
@@ -114,7 +376,7 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                     : 'bg-white/50 text-ovacare-navy hover:bg-white/70 border border-gray-200'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                {iconMap[tab.icon] || <BookOpen className="w-4 h-4" />}
                 {tab.label}
               </button>
             ))}
@@ -142,41 +404,28 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               {/* What is PCOS */}
               <GlassCard className="p-8">
                 <h2 className="text-2xl font-bold text-ovacare-navy mb-6">
-                  Understanding PCOS
+                  {t('education.overview.understandingPcos')}
                 </h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <p className="text-ovacare-gray leading-relaxed">
-                      Polycystic Ovary Syndrome (PCOS) is a hormonal disorder
-                      affecting 1 in 10 women of reproductive age. Despite its
-                      name, PCOS isn't just about cysts on the ovaries – it's a
-                      complex metabolic and hormonal condition.
+                      {t('education.overview.introText')}
                     </p>
                     <div className="bg-ovacare-purple/10 p-4 rounded-lg">
                       <h4 className="font-bold text-ovacare-navy mb-2">
-                        Key Statistics:
+                        {t('education.overview.keyStatistics')}
                       </h4>
                       <ul className="space-y-1 text-sm">
-                        <li>• Affects 6-12% of women worldwide</li>
-                        <li>• Most common endocrine disorder in women</li>
-                        <li>• Leading cause of female infertility</li>
-                        <li>• Often undiagnosed or misdiagnosed</li>
+                        {(t('education.overview.stats', { returnObjects: true }) as string[]).map((stat, i) => (
+                          <li key={i}>• {stat}</li>
+                        ))}
                       </ul>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <h4 className="font-bold text-ovacare-navy">Common Symptoms:</h4>
+                    <h4 className="font-bold text-ovacare-navy">{t('education.overview.commonSymptoms')}</h4>
                     <div className="grid grid-cols-1 gap-3">
-                      {[
-                        'Irregular or missed periods',
-                        'Excess hair growth (hirsutism)',
-                        'Weight gain or difficulty losing weight',
-                        'Acne and oily skin',
-                        'Hair thinning or male-pattern baldness',
-                        'Insulin resistance',
-                        'Mood changes and depression',
-                        'Sleep apnea',
-                      ].map((symptom, i) => (
+                      {(t('education.overview.symptoms', { returnObjects: true }) as string[]).map((symptom, i) => (
                         <div key={i} className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                           <div className="w-2 h-2 rounded-full bg-ovacare-purple" />
                           <span className="text-sm">{symptom}</span>
@@ -190,81 +439,63 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               {/* Diagnosis */}
               <GlassCard className="p-8">
                 <h3 className="text-xl font-bold text-ovacare-navy mb-4">
-                  Diagnosis Criteria (Rotterdam Criteria)
+                  {t('education.overview.diagnosisCriteria')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    {
-                      title: 'Ovulatory Dysfunction',
-                      desc: 'Irregular or absent ovulation, often resulting in irregular periods',
-                      icon: Calendar,
-                    },
-                    {
-                      title: 'Clinical/Biochemical Signs',
-                      desc: 'Elevated androgen levels or visible signs like excess hair growth',
-                      icon: Brain,
-                    },
-                    {
-                      title: 'Polycystic Ovaries',
-                      desc: '12+ follicles on ultrasound or increased ovarian volume',
-                      icon: CheckCircle,
-                    },
-                  ].map((criteria, i) => (
-                    <div key={i} className="text-center p-6 bg-white/30 rounded-lg">
-                      <div className="w-12 h-12 mx-auto rounded-full bg-ovacare-purple/10 flex items-center justify-center mb-4">
-                        <criteria.icon className="w-6 h-6 text-ovacare-purple" />
-                      </div>
-                      <h4 className="font-bold text-ovacare-navy mb-2">{criteria.title}</h4>
-                      <p className="text-sm text-ovacare-gray">{criteria.desc}</p>
+                  {(t('education.overview.diagnosisCriteriaItems', { returnObjects: true }) as Array<{
+                    title: string
+                    description: string
+                  }>).map((criterion, i) => (
+                    <div key={i} className="p-4 bg-gradient-to-br from-ovacare-purple/5 to-ovacare-pink/5 rounded-lg border border-ovacare-purple/10">
+                      <h4 className="font-bold text-ovacare-navy mb-2">{criterion.title}</h4>
+                      <p className="text-sm text-ovacare-gray">{criterion.description}</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                  <p className="text-sm text-amber-800">
-                    <strong>Note:</strong> At least 2 out of 3 criteria must be met for PCOS diagnosis,
-                    and other conditions must be ruled out.
-                  </p>
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">{t('education.overview.diagnosisNote')}</p>
                 </div>
               </GlassCard>
 
               {/* Educational Videos */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    title: 'What is PCOS? Complete Guide',
-                    duration: '12:45',
-                    thumbnail: '🎥',
-                    views: '2.3M',
-                  },
-                  {
-                    title: 'PCOS Symptoms Explained',
-                    duration: '8:30',
-                    thumbnail: '📚',
-                    views: '1.8M',
-                  },
-                ].map((video, i) => (
-                  <GlassCard key={i} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="flex items-start gap-4">
-                      <div className="w-20 h-16 bg-gradient-to-r from-ovacare-purple to-ovacare-pink rounded-lg flex items-center justify-center text-2xl">
-                        {video.thumbnail}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-ovacare-navy">Educational Videos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      title: "What Is Polycystic Ovary Syndrome? | Ask Cleveland Clinic's Expert",
+                      videoId: 'HzG-zaMYZZ8',
+                      author: 'Cleveland Clinic',
+                    },
+                    {
+                      title: 'Polycystic Ovarian Syndrome (PCOS) Symptoms Explained: Common & Uncommon Signs',
+                      videoId: '88C2El_EIBw',
+                      author: 'Dr. Lora Shahine, MD',
+                    },
+                  ].map((video, i) => (
+                    <GlassCard key={i} className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="aspect-video bg-black">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${video.videoId}`}
+                          title={video.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-ovacare-navy mb-1">{video.title}</h4>
-                        <div className="flex items-center gap-4 text-sm text-ovacare-gray">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {video.duration}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Play className="w-4 h-4" />
-                            {video.views} views
-                          </span>
-                        </div>
+                      <div className="p-4">
+                        <h4 className="font-bold text-ovacare-navy mb-2 line-clamp-2">{video.title}</h4>
+                        <p className="text-sm text-ovacare-gray flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {video.author}
+                        </p>
                       </div>
-                      <Play className="w-8 h-8 text-ovacare-purple" />
-                    </div>
-                  </GlassCard>
-                ))}
+                    </GlassCard>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -354,7 +585,11 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                         </div>
                       ))}
                     </div>
-                    <GradientButton className="w-full mt-4" variant="outline">
+                    <GradientButton 
+                      className="w-full mt-4" 
+                      variant="outline"
+                      onClick={generateMealPlanPDF}
+                    >
                       <Download className="w-4 h-4 mr-2" />
                       Download Full Plan
                     </GradientButton>
@@ -411,6 +646,31 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                     <p className="text-sm text-amber-800">
                       <strong>Disclaimer:</strong> Always consult with your healthcare provider before
                       starting any supplement regimen. Traditional remedies listed are common in Sri Lankan Ayurvedic practice but should be used under medical supervision.
+                    </p>
+                  </div>
+                </GlassCard>
+              </motion.div>
+
+              {/* Nutrition Video */}
+              <motion.div variants={itemVariants}>
+                <GlassCard className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-video bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/F6JBFWrEvFc"
+                      title="PCOS: What Every Woman Needs to Know | Doctor's 11-Minute Guide"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-bold text-ovacare-navy mb-2">PCOS: What Every Woman Needs to Know | Doctor's 11-Minute Guide</h4>
+                    <p className="text-sm text-ovacare-gray flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      Dr Pal
                     </p>
                   </div>
                 </GlassCard>
@@ -566,14 +826,39 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                   </div>
                   
                   <div className="mt-6 flex flex-col sm:flex-row gap-4">
-                    <GradientButton>
+                    <GradientButton onClick={generateExerciseProgramPDF}>
                       <Download className="w-4 h-4 mr-2" />
                       Download Program
                     </GradientButton>
-                    <GradientButton variant="outline">
+                    <GradientButton variant="outline" onClick={addExerciseProgramToCalendar}>
                       <Calendar className="w-4 h-4 mr-2" />
                       Add to Calendar
                     </GradientButton>
+                  </div>
+                </GlassCard>
+              </motion.div>
+
+              {/* Exercise Video */}
+              <motion.div variants={itemVariants}>
+                <GlassCard className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-video bg-black">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/YukpAFgNJM8"
+                      title="PCOS Weight Loss Workout | Hormonal Imbalances, Irregular Periods (Beginner, Low Impact)"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-bold text-ovacare-navy mb-2 line-clamp-2">PCOS Weight Loss Workout | Hormonal Imbalances, Irregular Periods (Beginner, Low Impact)</h4>
+                    <p className="text-sm text-ovacare-gray flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      Akshaya Agnes
+                    </p>
                   </div>
                 </GlassCard>
               </motion.div>
@@ -645,35 +930,8 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               </motion.div>
 
               {/* Mental Health Resources */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <motion.div variants={itemVariants}>
-                  <GlassCard className="p-6">
-                    <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                      Recommended Apps & Tools
-                    </h3>
-                    <div className="space-y-3">
-                      {[
-                        { name: 'Headspace', type: 'Meditation', rating: 4.8 },
-                        { name: 'Calm', type: 'Sleep & Relaxation', rating: 4.7 },
-                        { name: 'BetterHelp', type: 'Online Therapy', rating: 4.6 },
-                        { name: 'Mood Meter', type: 'Emotion Tracking', rating: 4.5 },
-                      ].map((app, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-white/40 rounded-lg">
-                          <div>
-                            <div className="font-medium text-ovacare-navy">{app.name}</div>
-                            <div className="text-sm text-ovacare-gray">{app.type}</div>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium">{app.rating}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </GlassCard>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <motion.div variants={itemVariants} className="flex-1 w-full min-w-0">
                   <GlassCard className="p-6">
                     <h3 className="text-lg font-bold text-ovacare-navy mb-4">
                       Crisis Resources
@@ -681,24 +939,129 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                     <div className="space-y-4">
                       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                         <div className="font-semibold text-red-800 mb-1">Crisis Text Line</div>
-                        <div className="text-red-600">Text HOME to 741741</div>
+                        <div className="text-red-600">Text HOME or HOLA to 741741</div>
                       </div>
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="font-semibold text-blue-800 mb-1">National Suicide Prevention Lifeline</div>
-                        <div className="text-blue-600">988 or 1-800-273-8255</div>
+                        <div className="text-blue-600">988 or 1333</div>
                       </div>
                       <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
                         <div className="font-semibold text-purple-800 mb-1">PCOS Challenge Support</div>
-                        <div className="text-purple-600">Online community & resources</div>
+                        <p className="text-sm text-purple-700 mb-2">
+                          Connect with Sri Lanka&apos;s PCOS community for peer support, educational
+                          resources, and shared experiences.
+                        </p>
+                        <a
+                          href="https://web.facebook.com/pcossrilanka/?_rdc=1&_rdr#"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm font-medium text-purple-800 hover:text-purple-900 underline"
+                        >
+                          Combat PCOS - Sri Lanka
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <div className="mt-4 pt-4 border-t border-purple-200">
+                          <div className="font-semibold text-purple-800 mb-1">
+                            Family Planning Association (FPA) of Sri Lanka
+                          </div>
+                          <p className="text-sm text-purple-700 mb-2">
+                            FPA offers comprehensive reproductive health services, counseling, and
+                            personalized care for PCOS and fertility. You can reach them directly for
+                            concerns or to schedule a consultation.
+                          </p>
+                          <div className="text-sm text-purple-800">
+                            <a href="tel:0765884881" className="hover:underline">
+                              076 588 4881
+                            </a>
+                            <span> / </span>
+                            <a href="tel:+94112555455" className="hover:underline">
+                              +94 112 555 455
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </GlassCard>
                 </motion.div>
+
+                <motion.div variants={itemVariants} className="w-full md:w-72 flex-shrink-0">
+                  <GlassCard className="p-4">
+                    <h3 className="text-lg font-bold text-ovacare-navy mb-3">
+                      Recommended Apps & Tools
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { name: 'Headspace', purpose: 'Meditation', rating: 4.8, image: '/assets/headspace.jpg' },
+                        { name: 'Calm', purpose: 'Mental Health', rating: 4.7, image: '/assets/calm.jpg' },
+                        { name: 'BetterHelp', purpose: 'Online Therapy', rating: 4.6, image: '/assets/betterhelp.png' },
+                        { name: 'Mood Meter', purpose: 'Emotion Tracking', rating: 4.5, image: '/assets/moodmeter.png' },
+                      ].map((app, i) => (
+                        <div
+                          key={i}
+                          className="flex flex-col items-center justify-center aspect-square p-2 bg-white/40 rounded-xl text-center"
+                        >
+                          <img
+                            src={app.image}
+                            alt={`${app.name} app icon`}
+                            className="w-10 h-10 rounded-xl object-cover border border-white/70 shadow-sm"
+                          />
+                          <div className="font-medium text-xs text-ovacare-navy mt-1.5 leading-tight">
+                            {app.name}
+                          </div>
+                          <div className="text-[10px] text-ovacare-gray leading-tight mt-0.5 line-clamp-2">
+                            {app.purpose}
+                          </div>
+                          <div className="flex items-center gap-0.5 mt-1">
+                            <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                            <span className="text-xs font-medium">{app.rating}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </GlassCard>
+                </motion.div>
               </div>
+
+              {/* Mental Health Videos */}
+              <motion.div variants={itemVariants}>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-ovacare-navy">Mental Health Videos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[
+                      {
+                        title: 'PCOS & Mental Health',
+                        videoId: 'wmJAdzobb_k',
+                      },
+                      {
+                        title: 'Managing PCOS & Emotional Wellbeing',
+                        videoId: 'IVBScaWiVy0',
+                      },
+                    ].map((video, i) => (
+                      <GlassCard key={i} className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="aspect-video bg-black">
+                          <iframe
+                            width="100%"
+                            height="100%"
+                            src={`https://www.youtube.com/embed/${video.videoId}`}
+                            title={video.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="p-3">
+                          <h4 className="font-semibold text-ovacare-navy text-sm">{video.title}</h4>
+                        </div>
+                      </GlassCard>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
           )}
 
-          {/* RESEARCH TAB */}
+          {/* BLOGS & RESEARCHES TAB */}
           {activeTab === 'research' && (
             <motion.div
               className="space-y-8"
@@ -708,144 +1071,91 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
             >
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
-                  <h2 className="text-2xl font-bold text-ovacare-navy mb-6">
-                    Latest PCOS Research
+                  <h2 className="text-2xl font-bold text-ovacare-navy mb-3">
+                    Blogs & Researches
                   </h2>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                        Recent Breakthroughs
-                      </h3>
-                      <div className="space-y-4">
-                        {[
-                          {
-                            title: 'New Genetic Markers Discovered',
-                            date: '2024',
-                            summary: 'Researchers identified 19 new genetic variants associated with PCOS risk.',
-                          },
-                          {
-                            title: 'Gut Microbiome Connection',
-                            date: '2024',
-                            summary: 'Studies reveal how gut bacteria influence PCOS symptoms and metabolism.',
-                          },
-                          {
-                            title: 'AI-Powered Diagnostic Tools',
-                            date: '2023',
-                            summary: 'Machine learning improves ultrasound accuracy for PCOS detection.',
-                          },
-                        ].map((study, i) => (
-                          <div key={i} className="p-4 bg-white/40 rounded-lg border-l-4 border-ovacare-purple">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h4 className="font-semibold text-ovacare-navy">{study.title}</h4>
-                                <p className="text-sm text-ovacare-gray mt-1">{study.summary}</p>
-                              </div>
-                              <span className="text-xs text-ovacare-purple font-medium">{study.date}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                        Clinical Trials
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-green-800">Active</span>
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Recruiting</span>
-                          </div>
-                          <h4 className="font-semibold text-green-900 mb-1">
-                            Metformin vs. Lifestyle Intervention
-                          </h4>
-                          <p className="text-sm text-green-700">
-                            Comparing medication versus lifestyle changes for insulin resistance.
-                          </p>
-                        </div>
-                        
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-blue-800">Phase III</span>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Open</span>
-                          </div>
-                          <h4 className="font-semibold text-blue-900 mb-1">
-                            Novel Hormonal Treatment
-                          </h4>
-                          <p className="text-sm text-blue-700">
-                            Testing new hormone therapy for ovulation induction.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <GradientButton variant="outline" className="w-full mt-4">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Find Clinical Trials
-                      </GradientButton>
-                    </div>
-                  </div>
+                  <p className="text-ovacare-gray max-w-3xl">
+                    Explore PCOS blogs, nutrition guides, and real success stories from people who
+                    have managed their condition. Click any article to read the full details.
+                  </p>
                 </GlassCard>
               </motion.div>
 
-              {/* Research Publications */}
               <motion.div variants={itemVariants}>
-                <GlassCard className="p-8">
-                  <h3 className="text-xl font-bold text-ovacare-navy mb-6">
-                    Key Publications (2024)
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    {[
-                      {
-                        title: 'Machine Learning Approaches for PCOS Diagnosis: A Systematic Review',
-                        journal: 'Nature Medicine',
-                        authors: 'Smith, J. et al.',
-                        impact: 'High Impact',
-                        summary: 'Comprehensive analysis of AI diagnostic tools shows 95%+ accuracy across multiple studies.',
-                      },
-                      {
-                        title: 'Gut-Ovarian Axis in PCOS: Mechanistic Insights',
-                        journal: 'Cell Metabolism',
-                        authors: 'Chen, L. et al.',
-                        impact: 'High Impact',
-                        summary: 'First mechanistic study linking gut microbiome to ovarian function in PCOS patients.',
-                      },
-                      {
-                        title: 'Inositol Supplementation in PCOS: Meta-Analysis of 15 RCTs',
-                        journal: 'Fertility & Sterility',
-                        authors: 'Rodriguez, M. et al.',
-                        impact: 'Medium Impact',
-                        summary: 'Confirmed benefits of inositol for ovulation induction and metabolic improvements.',
-                      },
-                    ].map((paper, i) => (
-                      <div key={i} className="p-6 bg-white/40 rounded-lg border border-gray-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-bold text-ovacare-navy mb-1">{paper.title}</h4>
-                            <div className="flex items-center gap-4 text-sm text-ovacare-gray">
-                              <span>{paper.journal}</span>
-                              <span>•</span>
-                              <span>{paper.authors}</span>
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-medium ${
-                                  paper.impact === 'High Impact'
-                                    ? 'bg-red-100 text-red-700'
-                                    : 'bg-orange-100 text-orange-700'
-                                }`}
-                              >
-                                {paper.impact}
-                              </span>
-                            </div>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-ovacare-navy">PCOS Blogs</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {PCOS_BLOG_ARTICLES.map((article) => (
+                      <a
+                        key={article.url}
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block group"
+                      >
+                        <GlassCard className="p-0 overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-white/40 group-hover:-translate-y-1">
+                          <BlogCardImage
+                            image={article.image}
+                            alt={article.title}
+                            source={article.source}
+                          />
+                          <div className="p-4">
+                            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-ovacare-purple/10 text-ovacare-purple mb-2">
+                              Blog
+                            </span>
+                            <h4 className="font-bold text-ovacare-navy mb-2 group-hover:text-ovacare-purple transition-colors">
+                              {article.title}
+                            </h4>
+                            <p className="text-sm text-ovacare-gray mb-3 line-clamp-2">{article.excerpt}</p>
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-ovacare-purple">
+                              Read full article
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </span>
                           </div>
-                          <ExternalLink className="w-5 h-5 text-ovacare-purple cursor-pointer" />
-                        </div>
-                        <p className="text-sm text-ovacare-gray">{paper.summary}</p>
-                      </div>
+                        </GlassCard>
+                      </a>
                     ))}
                   </div>
-                </GlassCard>
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-bold text-ovacare-navy">Success Stories</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {PCOS_SUCCESS_STORIES.map((story) => (
+                      <a
+                        key={story.url}
+                        href={story.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block group"
+                      >
+                        <GlassCard className="p-0 overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-white/40 group-hover:-translate-y-1">
+                          <BlogCardImage
+                            image={story.image}
+                            alt={story.title}
+                            source={story.source}
+                            variant="story"
+                          />
+                          <div className="p-4">
+                            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 mb-2">
+                              Success Story
+                            </span>
+                            <h4 className="font-bold text-ovacare-navy mb-2 group-hover:text-ovacare-purple transition-colors">
+                              {story.title}
+                            </h4>
+                            <p className="text-sm text-ovacare-gray mb-3 line-clamp-2">{story.excerpt}</p>
+                            <span className="inline-flex items-center gap-1 text-sm font-medium text-ovacare-purple">
+                              Read full story
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
+                        </GlassCard>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           )}

@@ -1,0 +1,21 @@
+{
+  "short_name": "OvaCare",
+  "name": "OvaCare | AI-Powered PCOS Detection & Support",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#667EEA",
+  "background_color": "#F8FAFC"
+}

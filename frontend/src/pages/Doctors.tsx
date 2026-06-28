@@ -1,99 +1,66 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { api } from '../utils/api';
 import '../styles/pages/Doctors.css';
-import { Doctor } from '../types';
+
+interface DoctorRecord {
+  _id: string;
+  name: string;
+  specialty: string;
+  hospital: string;
+  location: string;
+  experience: number;
+  rating: number;
+  languages: string[];
+  availableSlots?: { date: string; slots: string[] }[];
+}
 
 const Doctors: React.FC = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [location, setLocation] = useState<string>('');
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<DoctorRecord[]>([]);
+  const [filteredDoctors, setFilteredDoctors] = useState<DoctorRecord[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Mock data - replace with API call
-    const mockDoctors: Doctor[] = [
-      {
-        id: 1,
-        name: "Dr. Sarah Perera",
-        specialty: "Gynecologist",
-        hospital: "Asiri Hospitals, Colombo",
-        experienceYears: 15,
-        experience: "15 years",
-        rating: 4.8,
-        available: true,
-        image: "👩‍⚕️",
-        telemedicine: true
-      },
-      {
-        id: 2,
-        name: "Dr. Rajiv Fernando",
-        specialty: "Endocrinologist",
-        hospital: "Nawaloka Hospital, Colombo",
-        experienceYears: 12,
-        experience: "12 years",
-        rating: 4.7,
-        available: true,
-        image: "👨‍⚕️",
-        telemedicine: true
-      },
-      {
-        id: 3,
-        name: "Dr. Maya Silva",
-        specialty: "Reproductive Specialist",
-        hospital: "Durdans Hospital, Colombo",
-        experienceYears: 18,
-        experience: "18 years",
-        rating: 4.9,
-        available: false,
-        image: "👩‍⚕️",
-        telemedicine: false
-      },
-      {
-        id: 4,
-        name: "Dr. Anil Jayasinghe",
-        specialty: "Gynecologist",
-        hospital: "Lanka Hospitals, Colombo",
-        experienceYears: 10,
-        experience: "10 years",
-        rating: 4.6,
-        available: true,
-        image: "👨‍⚕️",
-        telemedicine: true
-      },
-      {
-        id: 5,
-        name: "Dr. Priya Kumar",
-        specialty: "Endocrinologist",
-        hospital: "Kandy Teaching Hospital",
-        experienceYears: 14,
-        experience: "14 years",
-        rating: 4.8,
-        available: true,
-        image: "👩‍⚕️",
-        telemedicine: false
-      },
-      {
-        id: 6,
-        name: "Dr. Sanjay Rajapaksa",
-        specialty: "Fertility Specialist",
-        hospital: "Central Hospital, Colombo",
-        experienceYears: 20,
-        experience: "20 years",
-        rating: 4.9,
-        available: true,
-        image: "👨‍⚕️",
-        telemedicine: true
-      }
-    ];
+    let cancelled = false;
 
-    setDoctors(mockDoctors);
-    setFilteredDoctors(mockDoctors);
+    const loadDoctors = async () => {
+      setLoading(true);
+      try {
+        const { data } = await api.get('/api/doctors');
+        const list = Array.isArray(data?.doctors) ? data.doctors : [];
+        if (!cancelled) {
+          setDoctors(list);
+          setFilteredDoctors(list);
+        }
+      } catch {
+        if (!cancelled) {
+          setDoctors([]);
+          setFilteredDoctors([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadDoctors();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    const filtered = doctors.filter(doctor => {
-      const matchesSearch = doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesLocation = location === '' || doctor.hospital.toLowerCase().includes(location.toLowerCase());
+    const filtered = doctors.filter((doctor) => {
+      const matchesSearch =
+        doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLocation =
+        location === '' ||
+        doctor.hospital.toLowerCase().includes(location.toLowerCase()) ||
+        doctor.location.toLowerCase().includes(location.toLowerCase());
       return matchesSearch && matchesLocation;
     });
     setFilteredDoctors(filtered);
@@ -101,52 +68,51 @@ const Doctors: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent): void => {
     e.preventDefault();
-    // Search is handled by useEffect
   };
 
   const tips = [
     { icon: '📝', title: 'Prepare Questions', description: 'Write down your symptoms and questions beforehand' },
     { icon: '📋', title: 'Bring Reports', description: 'Carry your ultrasound reports and medical history' },
     { icon: '🎯', title: 'Be Specific', description: 'Clearly describe your symptoms and concerns' },
-    { icon: '🗓️', title: 'Follow Up', description: 'Schedule follow-up appointments as recommended' }
+    { icon: '🗓️', title: 'Follow Up', description: 'Schedule follow-up appointments as recommended' },
   ];
 
   return (
     <div className="doctors-page">
-      <h1>Find PCOS Specialists</h1>
-      <p className="page-subtitle">Connect with experienced doctors specializing in PCOS treatment</p>
+      <h1>{t('doctors.pageTitle')}</h1>
+      <p className="page-subtitle">{t('doctors.pageSubtitle')}</p>
 
-      {/* Search Section */}
       <div className="search-section">
         <form onSubmit={handleSearch} className="search-box">
           <input
             type="text"
-            placeholder="Search doctors by name or specialty..."
+            placeholder={t('doctors.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
           />
           <input
             type="text"
-            placeholder="Location or hospital..."
+            placeholder={t('doctors.filters.location')}
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             className="search-input"
           />
-          <button type="submit" className="btn btn-primary">Search</button>
+          <button type="submit" className="btn btn-primary">{t('common.search')}</button>
         </form>
         <div className="search-stats">
-          <p>Found {filteredDoctors.length} specialists in your area</p>
+          <p>
+            {loading ? t('common.loading') : `${filteredDoctors.length} specialists found`}
+          </p>
         </div>
       </div>
 
-      {/* Doctors Grid */}
       <div className="doctors-grid">
-        {filteredDoctors.map(doctor => (
-          <div key={doctor.id} className="doctor-card">
+        {filteredDoctors.map((doctor) => (
+          <div key={doctor._id} className="doctor-card">
             <div className="doctor-header">
               <div className="doctor-avatar">
-                <span className="avatar-icon">{doctor.image}</span>
+                <span className="avatar-icon">👩‍⚕️</span>
               </div>
               <div className="doctor-info">
                 <h3>{doctor.name}</h3>
@@ -160,42 +126,31 @@ const Doctors: React.FC = () => {
                 <span className="detail-value">{doctor.hospital}</span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">Experience</span>
-                <span className="detail-value">{doctor.experience}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Rating</span>
-                <span className="detail-value rating">
-                  ⭐ {doctor.rating}/5.0
-                </span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Next Available</span>
-                <span className="detail-value available">{doctor.available}</span>
+                <span className="detail-label">{t('doctors.profile.location')}</span>
+                <span className="detail-value">{doctor.location}</span>
               </div>
             </div>
 
             <div className="doctor-actions">
-              <button className="btn btn-outline">View Profile</button>
-              <button className="btn btn-primary">Book Appointment</button>
+              <button className="btn btn-outline">{t('doctors.doctorCard.viewProfile')}</button>
+              <Link to={`/booking/${doctor._id}`} className="btn btn-primary">
+                {t('doctors.doctorCard.bookConsultation')}
+              </Link>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Telemedicine Section */}
+      {!loading && filteredDoctors.length === 0 && (
+        <p className="page-subtitle">{t('doctors.noResultsFound')}</p>
+      )}
+
       <div className="telemedicine-section">
         <div className="telemedicine-card">
           <div className="telemedicine-content">
             <h2>Virtual Consultations Available</h2>
-            <p>Can't visit in person? Many specialists offer online consultations for PCOS management.</p>
-            <ul className="telemedicine-features">
-              <li>✓ Video consultations from home</li>
-              <li>✓ Digital prescription services</li>
-              <li>✓ Follow-up appointments online</li>
-              <li>✓ Secure medical record sharing</li>
-            </ul>
-            <button className="btn btn-primary">Book Virtual Consultation</button>
+            <p>Many specialists offer online consultations for PCOS management.</p>
+            <button className="btn btn-primary">{t('doctors.doctorCard.bookConsultation')}</button>
           </div>
           <div className="telemedicine-image">
             <div className="video-icon">📹</div>
@@ -203,7 +158,6 @@ const Doctors: React.FC = () => {
         </div>
       </div>
 
-      {/* Tips Section */}
       <div className="tips-section">
         <h3>Tips for Your Doctor Visit</h3>
         <div className="tips-grid">

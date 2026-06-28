@@ -1,0 +1,355 @@
+.booking-page {
+  min-height: calc(100vh - 5rem);
+  padding: 2rem 1rem 4rem;
+  background: linear-gradient(135deg, #f8f4ff 0%, #eef2ff 50%, #fdf2f8 100%);
+}
+
+.booking-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.booking-header {
+  text-align: center;
+  margin: 1.5rem 0 2rem;
+}
+
+.booking-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin-bottom: 0.5rem;
+}
+
+.booking-header p {
+  color: #64748b;
+  font-size: 1.05rem;
+}
+
+.booking-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #7c3aed;
+  font-weight: 500;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+.booking-back-link:hover {
+  color: #5b21b6;
+}
+
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .booking-layout {
+    grid-template-columns: 320px 1fr;
+  }
+}
+
+.booking-doctor-card,
+.booking-form-card {
+  padding: 1.5rem;
+}
+
+.booking-doctor-card h2 {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7c3aed;
+  margin-bottom: 1rem;
+}
+
+.booking-doctor-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin-bottom: 0.35rem;
+}
+
+.booking-doctor-specialty {
+  color: #7c3aed;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.booking-doctor-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 1rem;
+}
+
+.booking-doctor-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.booking-doctor-languages {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.booking-section label {
+  display: block;
+  font-weight: 600;
+  color: #1e1b4b;
+  margin-bottom: 0.5rem;
+}
+
+.booking-date-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.booking-date-input-wrap input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #1e1b4b;
+}
+
+.booking-date-input-wrap input:focus {
+  outline: none;
+}
+
+.booking-time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.booking-slot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ddd6fe;
+  background: white;
+  color: #5b21b6;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-slot-btn:hover {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.booking-slot-btn.selected {
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  color: white;
+  border-color: transparent;
+}
+
+.booking-form input[type='text'],
+.booking-form input[type='email'],
+.booking-form input[type='tel'],
+.booking-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  color: #1e1b4b;
+}
+
+.booking-form input:focus,
+.booking-form textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.booking-error {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.95rem;
+}
+
+.booking-submit-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.booking-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 50vh;
+  color: #64748b;
+}
+
+.booking-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  animation: booking-spin 1s linear infinite;
+  color: #7c3aed;
+}
+
+.booking-spinner-inline {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  animation: booking-spin 1s linear infinite;
+}
+
+@keyframes booking-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.booking-error-card {
+  max-width: 480px;
+  margin: 4rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.booking-no-slots {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Confirmation page */
+.booking-confirmation-container {
+  max-width: 640px;
+}
+
+.booking-confirmation-card {
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.booking-confirmation-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.booking-confirmation-card h1 {
+  font-size: 1.75rem;
+  color: #1e1b4b;
+  margin-bottom: 0.75rem;
+}
+
+.booking-confirmation-email-note {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  color: #166534;
+  font-size: 0.95rem;
+}
+
+.booking-confirmation-message {
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+.booking-confirmation-details {
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: white;
+}
+
+.booking-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.booking-detail-row:last-child {
+  border-bottom: none;
+}
+
+.booking-detail-row span {
+  color: #64748b;
+}
+
+.booking-detail-row strong {
+  color: #1e1b4b;
+  text-align: right;
+  word-break: break-word;
+}
+
+.booking-payment-note {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.booking-confirmation-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.booking-back-doctors {
+  color: #7c3aed;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.booking-back-doctors:hover {
+  color: #5b21b6;
+}
+
+@media print {
+  .booking-back-link,
+  .booking-confirmation-actions,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  .booking-page {
+    background: white;
+    padding: 0;
+  }
+
+  .booking-confirmation-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+}

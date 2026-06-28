@@ -10,6 +10,20 @@ from models.segmentation_model import segment_follicles
 from utils.image_processor import preprocess_image, validate_image
 from utils.helpers import allowed_file, generate_recommendations
 # from services.mongodb_service import mongodb_service  # Temporarily disabled until deps are fixed
+from services.doctors_catalog import get_doctors_catalog, find_doctor_by_id
+from services.booking_store import create_booking, list_bookings, cancel_booking
+from config.email_config import get_email_config
+from services.email_service import (
+    send_report_request_confirmation,
+    send_test_email,
+    send_newsletter_subscription_confirmation,
+    send_booking_confirmation,
+)
+from services.newsletter_store import subscribe_email
+from services.doctor_forms_store import (
+    save_specialist_match_request,
+    save_provider_application,
+)
 
 api_bp = Blueprint('api', __name__)
 
@@ -107,48 +121,20 @@ def get_doctors():
     try:
         specialty = request.args.get('specialty', '')
         location = request.args.get('location', '')
-        limit = int(request.args.get('limit', 10))
-        
-        # Mock data - replace with database query
-        doctors = [
-            {
-                'id': 1,
-                'name': 'Dr. Sarah Perera',
-                'specialty': 'Gynecologist',
-                'hospital': 'Asiri Hospitals, Colombo',
-                'experienceYears': 15,
-                'rating': 4.8,
-                'available': True,
-                'telemedicine': True
-            },
-            {
-                'id': 2,
-                'name': 'Dr. Rajiv Fernando',
-                'specialty': 'Endocrinologist',
-                'hospital': 'Nawaloka Hospital, Colombo',
-                'experienceYears': 12,
-                'rating': 4.7,
-                'available': True,
-                'telemedicine': True
-            },
-            {
-                'id': 3,
-                'name': 'Dr. Priya Wickramasinghe',
-                'specialty': 'Reproductive Medicine',
-                'hospital': 'Durdans Hospital, Colombo',
-                'experienceYears': 18,
-                'rating': 4.9,
-                'available': False,
-                'telemedicine': True
-            }
-        ]
+        category = request.args.get('category', '')
+        limit = int(request.args.get('limit', 50))
+
+        doctors = get_doctors_catalog()
         
         # Filter doctors
         if specialty:
-            doctors = [d for d in doctors if specialty.lower() in d['specialty'].lower()]
-        
+            doctors = [d for d in doctors if specialty.lower() in d.get('specialty', '').lower()]
+
         if location:
-            doctors = [d for d in doctors if location.lower() in d['hospital'].lower()]
+            doctors = [d for d in doctors if location.lower() in d.get('location', '').lower()]
+
+        if category:
+            doctors = [d for d in doctors if category.lower() in [c.lower() for c in d.get('categories', [])]]
         
         # Apply limit
         doctors = doctors[:limit]
@@ -161,6 +147,305 @@ def get_doctors():
     except Exception as e:
         current_app.logger.error(f"Doctors endpoint error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+
+
+@api_bp.route('/bookings', methods=['GET'])
+def get_bookings():
+    """List bookings (demo/dev)."""
+    try:
+        doctor_id = request.args.get('doctorId')
+        if doctor_id is not None and str(doctor_id).strip() != '':
+            bookings = list_bookings(int(doctor_id))
+        else:
+            bookings = list_bookings()
+
+        return jsonify({
+            'count': len(bookings),
+            'bookings': bookings
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Bookings list error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@api_bp.route('/bookings', methods=['POST'])
+def create_booking_endpoint():
+    """Create a booking for a doctor.
+
+    Expected JSON:
+      - doctorId: number (required)
+      - appointmentType: 'video' | 'in_person' (optional, default 'video')
+      - requestedSlot: string (optional; demo uses display strings)
+      - patient: { name?, email?, phone? } (optional)
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+
+        doctor_id = data.get('doctorId')
+        if doctor_id is None:
+            return jsonify({'error': 'doctorId is required'}), 400
+
+        doctor = find_doctor_by_id(int(doctor_id))
+        if not doctor:
+            return jsonify({'error': 'Doctor not found'}), 404
+
+        appointment_type = (data.get('appointmentType') or 'video').strip()
+        requested_slot = data.get('requestedSlot') or doctor.get('nextAvailable')
+        patient = data.get('patient') or {}
+
+        booking = create_booking(
+            doctor_id=int(doctor_id),
+            appointment_type=appointment_type,
+            requested_slot=requested_slot,
+            patient=patient,
+        )
+
+        return jsonify({
+            'success': True,
+            'booking': booking,
+            'doctor': {
+                'id': doctor.get('id'),
+                'name': doctor.get('name'),
+                'specialty': doctor.get('specialty'),
+                'location': doctor.get('location'),
+            }
+        }), 201
+
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Create booking error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@api_bp.route('/bookings/<booking_id>', methods=['DELETE'])
+def cancel_booking_endpoint(booking_id: str):
+    """Cancel a booking."""
+    try:
+        if not booking_id:
+            return jsonify({'error': 'booking_id is required'}), 400
+
+        cancelled = cancel_booking(booking_id)
+        if not cancelled:
+            return jsonify({'error': 'Booking not found'}), 404
+
+        return jsonify({'success': True, 'message': 'Booking cancelled'}), 200
+    except Exception as e:
+        current_app.logger.error(f"Cancel booking error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@api_bp.route('/report/email', methods=['POST'])
+def email_scan_report():
+    """Queue a scan report for doctor delivery and email the patient a confirmation."""
+    try:
+        data = request.get_json(silent=True) or {}
+
+        doctor_id = data.get('doctorId')
+        if doctor_id is None:
+            return jsonify({'error': 'doctorId is required'}), 400
+
+        pdf_base64 = data.get('pdfBase64')
+        if not pdf_base64:
+            return jsonify({'error': 'pdfBase64 is required'}), 400
+
+        patient = data.get('patient') or {}
+        patient_name = (patient.get('name') or data.get('patientName') or '').strip()
+        patient_email = (patient.get('email') or data.get('patientEmail') or '').strip()
+
+        if not patient_name:
+            return jsonify({'error': 'patient name is required'}), 400
+
+        if not patient_email:
+            return jsonify({'error': 'patient email is required'}), 400
+
+        doctor = find_doctor_by_id(int(doctor_id))
+        if not doctor:
+            return jsonify({'error': 'Doctor not found'}), 404
+
+        report = data.get('report') or {}
+
+        result = send_report_request_confirmation(
+            patient_email=patient_email,
+            patient_name=patient_name,
+            doctor_name=doctor.get('name', 'Doctor'),
+            doctor_id=int(doctor_id),
+            report=report,
+            pdf_base64=pdf_base64,
+            filename=data.get('filename') or 'ovacare_scan_report.pdf',
+        )
+
+        return jsonify({
+            'success': True,
+            'doctor': {
+                'id': doctor.get('id'),
+                'name': doctor.get('name'),
+            },
+            'patient': {
+                'name': patient_name,
+                'email': patient_email,
+            },
+            **result,
+        }), 200
+
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Email report error: {str(e)}")
+        return jsonify({'error': 'Failed to process report email request'}), 500
+
+
+@api_bp.route('/email/status', methods=['GET'])
+def email_status():
+    """Return SMTP configuration status."""
+    return jsonify(get_email_config().public_status()), 200
+
+
+@api_bp.route('/email/test', methods=['POST'])
+def email_test():
+    """Send a test email to verify SMTP settings."""
+    try:
+        data = request.get_json(silent=True) or {}
+        recipient = (data.get('email') or os.getenv('SMTP_TEST_RECIPIENT', '')).strip()
+
+        if not recipient:
+            return jsonify({'error': 'email is required'}), 400
+
+        result = send_test_email(to_email=recipient)
+        return jsonify({
+            'success': True,
+            'recipient': recipient,
+            **result,
+        }), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"SMTP test error: {str(e)}")
+        return jsonify({'error': 'Failed to send test email'}), 500
+
+
+@api_bp.route('/email/booking-confirmation', methods=['POST'])
+def email_booking_confirmation():
+    """Send a booking confirmation email to the patient."""
+    try:
+        data = request.get_json(silent=True) or {}
+        patient_email = (data.get('patientEmail') or data.get('email') or '').strip()
+        patient_name = (data.get('patientName') or '').strip()
+        doctor_name = (data.get('doctorName') or '').strip()
+        appointment_date = (data.get('appointmentDate') or '').strip()
+        time_slot = (data.get('timeSlot') or '').strip()
+        hospital = (data.get('hospital') or '').strip()
+        booking_id = (data.get('bookingId') or '').strip()
+
+        if not patient_email:
+            return jsonify({'error': 'patientEmail is required'}), 400
+        if not patient_name:
+            return jsonify({'error': 'patientName is required'}), 400
+        if not doctor_name:
+            return jsonify({'error': 'doctorName is required'}), 400
+        if not appointment_date:
+            return jsonify({'error': 'appointmentDate is required'}), 400
+        if not time_slot:
+            return jsonify({'error': 'timeSlot is required'}), 400
+
+        result = send_booking_confirmation(
+            patient_email=patient_email,
+            patient_name=patient_name,
+            doctor_name=doctor_name,
+            appointment_date=appointment_date,
+            time_slot=time_slot,
+            hospital=hospital,
+            booking_id=booking_id,
+        )
+        return jsonify(result), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Booking confirmation email error: {str(e)}")
+        return jsonify({'error': 'Failed to send booking confirmation email'}), 500
+
+
+@api_bp.route('/doctors/specialist-match', methods=['POST'])
+def specialist_match_request():
+    """Save a patient suggestion for a doctor to add to the network."""
+    try:
+        data = request.get_json(silent=True) or {}
+        result = save_specialist_match_request(
+            submitter_name=(data.get('submitterName') or data.get('name') or '').strip(),
+            submitter_email=(data.get('submitterEmail') or data.get('email') or '').strip(),
+            doctor_name=(data.get('doctorName') or '').strip(),
+            specialty=(data.get('specialty') or '').strip(),
+            location=(data.get('location') or '').strip(),
+            details=(data.get('details') or data.get('description') or '').strip(),
+        )
+        return jsonify({
+            **result,
+            'message': 'Thank you! We have received your specialist suggestion.',
+        }), 201
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Specialist match request error: {str(e)}")
+        return jsonify({'error': 'Failed to submit specialist match request'}), 500
+
+
+@api_bp.route('/doctors/provider-application', methods=['POST'])
+def provider_application():
+    """Save a doctor application to join the OvaCare provider network."""
+    try:
+        data = request.get_json(silent=True) or {}
+        result = save_provider_application(
+            name=(data.get('name') or '').strip(),
+            specialty=(data.get('specialty') or '').strip(),
+            description=(data.get('description') or '').strip(),
+            email=(data.get('email') or '').strip(),
+            phone=(data.get('phone') or '').strip(),
+        )
+        return jsonify({
+            **result,
+            'message': 'Thank you for your interest in joining OvaCare. We will be in touch soon.',
+        }), 201
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Provider application error: {str(e)}")
+        return jsonify({'error': 'Failed to submit provider application'}), 500
+
+
+@api_bp.route('/newsletter/subscribe', methods=['POST'])
+def newsletter_subscribe():
+    """Subscribe an email to the newsletter and send a confirmation email."""
+    try:
+        data = request.get_json(silent=True) or {}
+        email = (data.get('email') or '').strip()
+
+        if not email:
+            return jsonify({'error': 'email is required'}), 400
+
+        subscription = subscribe_email(email)
+
+        if subscription.get('created'):
+            delivery = send_newsletter_subscription_confirmation(email=email)
+        else:
+            delivery = {
+                'success': True,
+                'message': f'{email} is already subscribed to the newsletter.',
+                'delivered': False,
+                'skipped': True,
+            }
+
+        return jsonify({
+            'success': True,
+            'email': email,
+            'alreadySubscribed': not subscription.get('created', True),
+            **delivery,
+        }), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        current_app.logger.error(f"Newsletter subscribe error: {str(e)}")
+        return jsonify({'error': 'Failed to process newsletter subscription'}), 500
+
 
 @api_bp.route('/analyze', methods=['POST'])
 def analyze_existing():

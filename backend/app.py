@@ -4,11 +4,15 @@ import os
 from dotenv import load_dotenv
 from api.routes import api_bp
 from utils.helpers import initialize_models
+from config.email_config import get_email_config
+from services.migrate_local_data import migrate_local_data_to_mongo
 # from services.mongodb_service import mongodb_service  # Temporarily disabled - will re-enable once deps are fixed
 import logging
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from backend/.env regardless of cwd.
+# override=True ensures .env wins over stale empty vars left from an earlier process start.
+_ENV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+load_dotenv(_ENV_PATH, override=True)
 
 def create_app():
     """Create and configure the Flask application."""
@@ -23,15 +27,44 @@ def create_app():
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # Enable CORS with environment-specified origins
-    cors_origins = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    cors_origins = [
+        origin.strip()
+        for origin in os.getenv(
+            'CORS_ORIGINS',
+            'http://localhost:3000,http://127.0.0.1:3000',
+        ).split(',')
+        if origin.strip()
+    ]
     print(f"🌐 CORS origins loaded: {cors_origins}")  # Debug log
-    CORS(app, origins=cors_origins)
+    CORS(
+        app,
+        resources={r'/api/*': {
+            'origins': cors_origins,
+            'methods': ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            'allow_headers': ['Content-Type', 'Authorization'],
+            'supports_credentials': True,
+        }},
+    )
     
     # Set up logging
     logging.basicConfig(level=logging.INFO)
+
+    email_config = get_email_config()
+    if email_config.is_configured:
+        print(f"✉️ SMTP email enabled ({email_config.host}:{email_config.port} → {email_config.from_address})")
+    elif email_config.save_locally_when_unconfigured:
+        print("⚠️ SMTP not configured - emails will be saved to MongoDB (sent_emails collection)")
+        print(f"   Missing: {', '.join(email_config.missing_fields()) or 'unknown'}")
+    else:
+        print("❌ SMTP not configured - outbound email will fail until backend/.env is updated")
+        print(f"   Missing: {', '.join(email_config.missing_fields())}")
+        print("   Set SMTP_PASSWORD (Gmail App Password) or SMTP_SAVE_LOCALLY=true for local dev fallback")
     
-    # MongoDB Atlas integration (temporarily disabled until dependencies are resolved)
-    print("📁 Using local file storage - MongoDB will be enabled in production")
+    try:
+        migrate_local_data_to_mongo()
+        print("✅ MongoDB storage ready (report requests, emails, newsletters, bookings)")
+    except Exception as migration_error:
+        print(f"⚠️ MongoDB migration skipped: {migration_error}")
     print("✅ Sri Lankan data updates applied successfully")
     
     # Initialize ML models
@@ -46,7 +79,8 @@ def create_app():
         return jsonify({
             'status': 'healthy',
             'service': 'OvaCare AI Backend',
-            'version': '1.0.0'
+            'version': '1.0.0',
+            'email': get_email_config().public_status(),
         })
     
     @app.route('/')
@@ -61,4 +95,5 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    flask_port = int(os.getenv('FLASK_PORT', '5001'))
+    app.run(debug=True, host='0.0.0.0', port=flask_port)
