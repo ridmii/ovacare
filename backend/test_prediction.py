@@ -7,6 +7,8 @@ import numpy as np
 import cv2
 from pathlib import Path
 
+CLASSIFICATION_THRESHOLD = 0.7
+
 def test_model_prediction():
     """Test the model with a known normal ultrasound image"""
     
@@ -58,7 +60,7 @@ def test_model_prediction():
         
         # Interpret results
         pred_value = float(prediction[0][0])
-        predicted_class = 1 if pred_value > 0.5 else 0
+        predicted_class = 1 if pred_value >= CLASSIFICATION_THRESHOLD else 0
         confidence = pred_value if predicted_class == 1 else (1 - pred_value)
         
         print()

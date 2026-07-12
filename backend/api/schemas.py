@@ -55,7 +55,15 @@ ANALYSIS_RESPONSE_SCHEMA = {
         "confidence": {"type": "number", "minimum": 0, "maximum": 100},
         "follicleCount": {"type": "integer", "minimum": 0},
         "severity": {"type": "string", "enum": ["Mild", "Moderate", "Severe", "None", "Unknown"]},
-        "recommendations": {"type": "array", "items": {"type": "string"}}
+        "recommendations": {"type": "array", "items": {"type": "string"}},
+        "visualization": {
+            "type": ["object", "null"],
+            "properties": {
+                "layerName": {"type": "string"},
+                "heatmapImageDataUrl": {"type": "string"},
+                "overlayImageDataUrl": {"type": "string"}
+            }
+        }
     },
     "required": ["diagnosis", "confidence", "follicleCount", "severity", "recommendations"]
 }

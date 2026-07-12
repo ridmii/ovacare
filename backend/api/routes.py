@@ -70,7 +70,7 @@ def upload_scan():
         
         # Run AI analysis
         print("🤖 Running PCOS classification...")  # Debug log
-        classification_result = classify_ultrasound(processed_image)
+        classification_result = classify_ultrasound(processed_image, original_image_path=filepath)
         print(f"✅ Classification result: {classification_result['diagnosis']}")  # Debug log
         
         print("🔬 Running follicle segmentation...")  # Debug log  
@@ -83,7 +83,8 @@ def upload_scan():
             'confidence': classification_result['confidence'],
             'follicleCount': segmentation_result['follicle_count'],
             'severity': classification_result['severity'],
-            'recommendations': generate_recommendations(classification_result, segmentation_result)
+            'recommendations': generate_recommendations(classification_result, segmentation_result),
+            'visualization': classification_result.get('visualization'),
         }
         
         # Analysis metadata (ready for MongoDB when deployed)

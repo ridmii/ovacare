@@ -10,9 +10,14 @@ import {
   DoctorsPage,
   BookingPage,
   BookingConfirmationPage,
+  LoginPage,
+  SignupPage,
+  ProfilePage,
 } from './lazyPages'
 
 function pageFromPath(pathname: string): string {
+  if (pathname.startsWith('/login')) return 'login'
+  if (pathname.startsWith('/signup')) return 'signup'
   if (pathname.startsWith('/scan')) return 'scan'
   if (pathname.startsWith('/education')) return 'education'
   if (pathname.startsWith('/doctors') || pathname.startsWith('/booking')) return 'doctors'
@@ -27,6 +32,8 @@ export function AppRoutes() {
   const location = useLocation()
   const navigate = useNavigate()
   const activePage = pageFromPath(location.pathname)
+  const isAuthRoute =
+    location.pathname.startsWith('/login') || location.pathname.startsWith('/signup')
 
   const setActivePage = (page: string) => {
     const routes: Record<string, string> = {
@@ -34,13 +41,16 @@ export function AppRoutes() {
       scan: '/scan',
       education: '/education',
       doctors: '/doctors',
+      login: '/login',
+      signup: '/signup',
+      profile: '/profile',
     }
     navigate(routes[page] || '/')
   }
 
   return (
     <div className="min-h-screen bg-ovacare-light font-sans text-ovacare-navy selection:bg-ovacare-purple/30">
-      <Navbar activePage={activePage} setActivePage={setActivePage} />
+      {!isAuthRoute && <Navbar activePage={activePage} setActivePage={setActivePage} />}
 
       <main className="w-full">
         <Routes location={location}>
@@ -92,10 +102,34 @@ export function AppRoutes() {
               </LazyPage>
             }
           />
+          <Route
+            path="/login"
+            element={
+              <LazyPage>
+                <LoginPage setActivePage={setActivePage} />
+              </LazyPage>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <LazyPage>
+                <SignupPage setActivePage={setActivePage} />
+              </LazyPage>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <LazyPage>
+                <ProfilePage setActivePage={setActivePage} />
+              </LazyPage>
+            }
+          />
         </Routes>
       </main>
 
-      <Footer setActivePage={setActivePage} />
+      {!isAuthRoute && <Footer setActivePage={setActivePage} />}
     </div>
   )
 }

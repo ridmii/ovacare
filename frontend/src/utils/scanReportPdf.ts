@@ -13,6 +13,7 @@ export interface ScanReportData {
     modelUsed?: string
   }
   scanImageDataUrl?: string | null
+  gradCamImageDataUrl?: string | null
   fileName?: string
 }
 
@@ -39,11 +40,24 @@ export function buildScanReportElement(data: ScanReportData): HTMLDivElement {
     .map((rec) => `<li style="margin-bottom: 6px;">${escapeHtml(rec)}</li>`)
     .join('')
 
-  const imageSection = data.scanImageDataUrl
-    ? `<div style="margin: 20px 0; text-align: center;">
-        <img src="${data.scanImageDataUrl}" alt="Ultrasound scan" style="max-width: 100%; max-height: 280px; border-radius: 8px; border: 1px solid #e2e8f0;" />
+  const hasBothImages = Boolean(data.scanImageDataUrl && data.gradCamImageDataUrl)
+  const imageSection = hasBothImages
+    ? `<div style="display: flex; gap: 12px; margin: 20px 0 24px;">
+        <div style="flex: 1; text-align: center;">
+          <div style="font-size: 12px; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;">Original scan</div>
+          <img src="${data.scanImageDataUrl}" alt="Ultrasound scan" style="width: 100%; max-height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;" />
+        </div>
+        <div style="flex: 1; text-align: center;">
+          <div style="font-size: 12px; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;">Grad-CAM overlay</div>
+          <img src="${data.gradCamImageDataUrl}" alt="Grad-CAM overlay" style="width: 100%; max-height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;" />
+        </div>
       </div>`
-    : ''
+    : data.scanImageDataUrl
+      ? `<div style="margin: 20px 0; text-align: center;">
+          <div style="font-size: 12px; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;">Original scan</div>
+          <img src="${data.scanImageDataUrl}" alt="Ultrasound scan" style="max-width: 100%; max-height: 280px; border-radius: 8px; border: 1px solid #e2e8f0;" />
+        </div>`
+      : ''
 
   element.innerHTML = `
     <div style="padding: 40px; font-family: Arial, sans-serif; background: white; color: #1a365d;">

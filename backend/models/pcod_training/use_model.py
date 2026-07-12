@@ -15,6 +15,8 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
+THRESHOLD = 0.7
+
 
 def _candidate_model_paths(repo_root: Path) -> list[Path]:
     return [
@@ -95,7 +97,7 @@ def predict_pcos_simple(image_path: str, model_path: str | None = None) -> dict:
         pred = model.predict(image, verbose=0)
         probability = float(pred[0, 0])
 
-        is_pcos = probability > 0.5
+        is_pcos = probability >= THRESHOLD
         confidence = probability if is_pcos else (1.0 - probability)
 
         return {

@@ -65,6 +65,63 @@ const enTranslation = {
         sort: 'Sort',
       },
 
+      // Auth (Login & Signup)
+      auth: {
+        login: {
+          badge: 'Welcome Back',
+          heroTitle: 'Access Your Dashboard',
+          features: [
+            { title: 'Secure & Private', text: 'Your data is encrypted and protected' },
+            { title: 'Expert Doctors', text: 'Connect with verified specialists' },
+            { title: 'Fast Results', text: 'Get your analysis in minutes' }
+          ],
+          title: 'Log In',
+          subtitle: 'Sign in to access your account',
+          googleButton: 'Continue with Google',
+          orEmail: 'Or continue with email',
+          emailLabel: 'Email Address',
+          emailPlaceholder: 'you@example.com',
+          passwordLabel: 'Password',
+          forgotPassword: 'Forgot password?',
+          passwordPlaceholder: '••••••••',
+          rememberMe: 'Remember me',
+          submitButton: 'Sign In',
+          noAccount: "Don't have an account?",
+          signupLink: 'Sign Up',
+          errorGoogle: 'Google sign in failed. Please try again.',
+          success: 'Successfully logged in!',
+        },
+        signup: {
+          badge: 'Join OvaCare',
+          heroTitle: 'Start Your Journey',
+          heroSubtitle: 'Create an account to track your reproductive health and get AI-powered insights.',
+          features: [
+            { title: 'Secure & Private', text: 'Your data is encrypted and protected' },
+            { title: 'AI-Powered', text: 'Advanced analysis for accurate insights' },
+            { title: 'Fast Results', text: 'Get your analysis in minutes' }
+          ],
+          title: 'Create Account',
+          subtitle: 'Sign up to get started',
+          googleButton: 'Sign up with Google',
+          orEmail: 'Or sign up with email',
+          errorFillFields: 'Please fill in all required fields.',
+          errorAgreeTerms: 'You must agree to the Terms of Service.',
+          errorGoogle: 'Google sign up failed. Please try again.',
+          success: 'Account created successfully!',
+          fullNameLabel: 'Full Name',
+          fullNamePlaceholder: 'Jane Doe',
+          emailLabel: 'Email Address',
+          emailPlaceholder: 'you@example.com',
+          passwordLabel: 'Password',
+          passwordPlaceholder: 'Create a strong password',
+          privacyNote: 'By signing up, you acknowledge that your data will be securely processed according to our Privacy Policy.',
+          agreeTerms: 'I agree to the Terms of Service and Privacy Policy',
+          submitButton: 'Create Account',
+          alreadyHaveAccount: 'Already have an account?',
+          loginLink: 'Log In',
+        }
+      },
+
       // HOME PAGE
       home: {
         // Hero section
@@ -247,6 +304,8 @@ const enTranslation = {
         // Results section
         resultsSection: {
           title: 'Analysis Results',
+          analysisComplete: 'Analysis Complete',
+          analysisCompleteSubtitle: 'Here are your AI-powered scan results',
           diagnosisLabel: 'Diagnosis',
           confidenceLabel: 'Confidence',
           follicleCountLabel: 'Follicle Count',
@@ -255,8 +314,24 @@ const enTranslation = {
           recommendationsTitle: 'Recommendations',
           saveReportButton: 'Save Report',
           findDoctorsButton: 'Find Doctors',
+          findSpecialist: 'Find a Specialist',
+          learnAboutPcos: 'Learn About PCOS',
           uploadNewScan: 'Upload New Scan',
+          originalScan: 'Original scan',
+          gradCamOverlay: 'Grad-CAM overlay',
+          gradCamUnavailable: 'Grad-CAM visualization is unavailable for this analysis.',
+          viewExplanation: 'View Explanation',
         },
+
+        // Analyzing steps
+        analyzingSteps: [
+          'Detecting follicle patterns...',
+          'Counting ovarian follicles...',
+          'Measuring ovarian volume...',
+          'Analyzing PCOS markers...',
+          'Generating confidence scores...',
+        ],
+        analyzingSubtitle: 'Your ultrasound is being processed by our advanced neural network. This usually takes 30-60 seconds.',
 
         // Technical details section
         technicalDetails: {
@@ -410,8 +485,16 @@ const enTranslation = {
             { day: 'Saturday', meal: 'Bitter gourd curry with red rice and chicken' },
             { day: 'Sunday', meal: 'Mixed vegetable curry with coconut roti' },
           ],
+          videoTitle: "PCOS: What Every Woman Needs to Know | Doctor's 11-Minute Guide",
           downloadFullPlan: 'Download Full Plan',
-          foodsToAvoid: 'Foods to Avoid',
+          foodsToAvoid: [
+            { category: 'White Rice & Refined Carbs', examples: 'White rice, white bread, wade, kokis' },
+            { category: 'Sugary Sri Lankan Treats', examples: 'Konda kevum, aluwa, sugary drinks' },
+            { category: 'Processed Foods', examples: 'Packet noodles, biscuits, fried snacks' },
+            { category: 'Excessive Coconut Products', examples: 'Too much coconut milk, kiribath daily' },
+            { category: 'High Sugar Fruits', examples: 'Overripe bananas, dates, grapes' },
+          ],
+          foodsToAvoidTitle: 'Foods to Avoid',
           foodsToAvoidList: [
             { category: 'White Rice & Refined Carbs', examples: 'White rice, white bread, wade, kokis' },
             { category: 'Sugary Sri Lankan Treats', examples: 'Konda kevum, aluwa, sugary drinks' },
@@ -419,7 +502,13 @@ const enTranslation = {
             { category: 'Excessive Coconut Products', examples: 'Too much coconut milk, kiribath daily' },
             { category: 'High Sugar Fruits', examples: 'Overripe bananas, dates, grapes' },
           ],
-          supplements: 'Evidence-Based Supplements',
+          supplementsTitle: 'Evidence-Based Supplements',
+          supplements: [
+            { name: 'Fenugreek (Uluhaal)', benefit: 'Traditional PCOS remedy', dosage: '500mg twice daily' },
+            { name: 'Cinnamon (Kurundu)', benefit: 'Blood sugar control', dosage: '1-3g daily' },
+            { name: 'Turmeric (Kaha)', benefit: 'Anti-inflammatory', dosage: '500-1000mg daily' },
+            { name: 'Moringa (Murunga)', benefit: 'Nutrient dense superfood', dosage: '1-2g daily' },
+          ],
           supplementsList: [
             { name: 'Fenugreek (Uluhaal)', benefit: 'Traditional PCOS remedy', dosage: '500mg twice daily' },
             { name: 'Cinnamon (Kurundu)', benefit: 'Blood sugar control', dosage: '1-3g daily' },
@@ -432,6 +521,7 @@ const enTranslation = {
         // Exercise tab
         exercise: {
           exerciseGuidelines: 'PCOS Exercise Guidelines',
+          guidelines: 'PCOS Exercise Guidelines',
           whyExerciseMatters: 'Why Exercise Matters for PCOS',
           benefits: [
             'Improves insulin sensitivity by up to 25%',
@@ -442,8 +532,14 @@ const enTranslation = {
             'Enhances fertility outcomes',
           ],
           weeklyGoal: 'Weekly Exercise Goal',
+          weeklyGoals: 'Weekly Exercise Goals',
           weeklyGoalMinutes: '150 minutes',
           weeklyGoalDescription: 'Moderate-intensity aerobic activity per week, plus 2 days of strength training',
+          goals: [
+            { type: 'Cardio', range: '75-150 min/week' },
+            { type: 'Strength', range: '2-3 sessions/week' },
+            { type: 'HIIT', range: '1-2 sessions/week' },
+          ],
           exerciseBreakdown: [
             { type: 'Cardio', range: '75-150 min/week' },
             { type: 'Strength', range: '2-3 sessions/week' },
@@ -474,7 +570,28 @@ const enTranslation = {
           ],
           benefitsLabel: 'BENEFITS:',
           examplesLabel: 'EXAMPLES:',
+          cardioLabel: 'Cardio:',
+          strengthLabel: 'Strength:',
+          hiitLabel: 'HIIT:',
           fourWeekProgram: '4-Week Beginner Program',
+          foodsToAvoidTitle: 'Foods to Avoid',
+          foodsToAvoid: [
+            { category: 'White Rice & Refined Carbs', examples: 'White rice, white bread, wade, kokis' },
+            { category: 'Sugary Sri Lankan Treats', examples: 'Konda kevum, aluwa, sugary drinks' },
+            { category: 'Processed Foods', examples: 'Packet noodles, biscuits, fried snacks' },
+            { category: 'Excessive Coconut Products', examples: 'Too much coconut milk, kiribath daily' },
+            { category: 'High Sugar Fruits', examples: 'Overripe bananas, dates, grapes' },
+          ],
+          supplementsTitle: 'Evidence-Based Supplements',
+          supplementsDisclaimer: 'Disclaimer: Always consult with your healthcare provider before starting any supplement regimen. Traditional remedies listed are common in Sri Lankan Ayurvedic practice but should be used under medical supervision.',
+          supplements: [
+            { name: 'Fenugreek (Uluhaal)', benefit: 'Traditional PCOS remedy', dosage: '500mg twice daily' },
+            { name: 'Cinnamon (Kurundu)', benefit: 'Blood sugar control', dosage: '1-3g daily' },
+            { name: 'Turmeric (Kaha)', benefit: 'Anti-inflammatory', dosage: '500-1000mg daily' },
+            { name: 'Moringa (Murunga)', benefit: 'Nutrient dense superfood', dosage: '1-2g daily' },
+          ],
+          videoTitle: "PCOS: What Every Woman Needs to Know | Doctor's 11-Minute Guide",
+          downloadFullPlan: 'Download Full Plan',
           programWeeks: [
             { week: 'Week 1', cardio: '15 min', strength: '2x/week', hiit: 'Optional' },
             { week: 'Week 2', cardio: '20 min', strength: '2x/week', hiit: 'Optional' },
@@ -505,9 +622,30 @@ const enTranslation = {
             { strategy: 'Support Groups', description: 'Connect with others who understand' },
             { strategy: 'Therapy', description: 'CBT and counseling for emotional support' },
             { strategy: 'Stress Management', description: 'Techniques to lower cortisol levels' },
-            { strategy: 'Lifestyle Changes', description: 'Diet and exercise for hormone balance' },
-            { strategy: 'Professional Help', description: 'Consult with psychologists or counselors' },
+            { strategy: 'Sleep Hygiene', description: 'Quality sleep for hormone regulation' },
           ],
+          crisisResources: 'Crisis Resources',
+          crisisTextLine: 'Crisis Text Line',
+          crisisTextLineValue: 'Text HOME or HOLA to 741741',
+          suicidePrevention: 'National Suicide Prevention Lifeline',
+          suicidePreventionValue: '988 or 1333',
+          pcosChallenge: 'PCOS Challenge Support',
+          pcosChallengeText: "Connect with Sri Lanka's PCOS community for peer support, educational resources, and shared experiences.",
+          pcosChallengeLink: 'Combat PCOS - Sri Lanka',
+          fpaTitle: 'Family Planning Association (FPA) of Sri Lanka',
+          fpaText: 'FPA offers comprehensive reproductive health services, counseling, and personalized care for PCOS and fertility. You can reach them directly for concerns or to schedule a consultation.',
+          recommendedApps: 'Recommended Apps & Tools',
+          apps: [
+            { name: 'Headspace', purpose: 'Meditation' },
+            { name: 'Calm', purpose: 'Mental Health' },
+            { name: 'BetterHelp', purpose: 'Online Therapy' },
+            { name: 'Mood Meter', purpose: 'Emotion Tracking' },
+          ],
+          videosTitle: 'Mental Health Videos',
+          videos: [
+            { title: 'PCOS & Mental Health' },
+            { title: 'Managing PCOS & Emotional Wellbeing' }
+          ]
         },
 
         // Research tab
@@ -532,6 +670,55 @@ const enTranslation = {
               description: 'Emerging therapies and clinical trial updates',
             },
           ],
+          blogsTitle: 'PCOS Blogs',
+          blogsSubtitle: 'Explore PCOS blogs, nutrition guides, and real success stories from people who have managed their condition. Click any article to read the full details.',
+          successStoriesTitle: 'Success Stories',
+          readFullArticle: 'Read full article',
+          readFullStory: 'Read full story',
+          blogTag: 'Blog',
+          successStoryTag: 'Success Story',
+          blogs: [
+            {
+              title: 'PCOS and Insomnia',
+              excerpt: 'Understand the link between PCOS and sleep problems, plus tips for better rest.',
+              source: 'Claire Pettitt',
+            },
+            {
+              title: 'PCOS and IBS',
+              excerpt: 'How digestive health connects to PCOS and what you can do to manage symptoms.',
+              source: 'Claire Pettitt',
+            },
+            {
+              title: '15 PCOS-Friendly Vegetarian Recipes',
+              excerpt: 'Nutritious vegetarian meal ideas designed to support hormonal balance.',
+              source: 'Claire Pettitt',
+            },
+            {
+              title: 'PCOS-Friendly Soups',
+              excerpt: 'Warm, nourishing soup recipes that fit a PCOS-friendly eating plan.',
+              source: 'Claire Pettitt',
+            },
+          ],
+          successStories: [
+            {
+              title: 'Olympic Athlete Beat PCOS',
+              excerpt: 'How an Olympic athlete managed PCOS and continued performing at the highest level.',
+              source: 'PCOS Nutrition',
+            },
+            {
+              title: 'My PCOS Success Story',
+              excerpt: 'A personal journey of overcoming PCOS through lifestyle changes and persistence.',
+              source: 'The Smooco',
+            },
+          ]
+        },
+
+        // CTA section
+        cta: {
+          title: 'Ready to Take Control of Your PCOS?',
+          subtitle: 'Knowledge is power. Use our AI-powered diagnostic tool to get personalized insights about your condition.',
+          startScan: 'Start AI Scan',
+          findSpecialist: 'Find a Specialist',
         },
       },
 

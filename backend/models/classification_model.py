@@ -1,14 +1,18 @@
 import numpy as np
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from pathlib import Path
 import os
 import random
+
+from .gradcam_utils import GradCAMExplainer
 
 # Path to the trained PCOS model
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'pcod_training', 'outputs', 'checkpoints', 'best_model_phase3.h5')
 
 # Global variable to store loaded model
 _loaded_model = None
+_loaded_explainer = None
+CLASSIFICATION_THRESHOLD = 0.7
 
 def load_classification_model():
     """Load or mock the trained PCOS classification model."""
@@ -19,7 +23,7 @@ def load_classification_model():
             model_path = Path(MODEL_PATH)
             if not model_path.exists():
                 # Use a mock model for development
-                print(f"⚠️  Model not found at: {model_path}")
+                print(f"Model not found at: {model_path}")
                 print("Using mock classification model for development")
                 _loaded_model = "mock_model"
                 return _loaded_model
@@ -34,7 +38,7 @@ def load_classification_model():
                         loss='binary_crossentropy',
                         metrics=['accuracy']
                     )
-                    print(f"✅ PCOS model loaded successfully!")
+                    print("PCOS model loaded successfully!")
                     return _loaded_model
                 except ImportError:
                     print("TensorFlow not available - using mock model")
@@ -42,14 +46,33 @@ def load_classification_model():
                     return _loaded_model
             
         except Exception as e:
-            print(f"❌ Error loading PCOS model: {e}")
-            print("⚠️ Falling back to mock predictions")
+            print(f"Error loading PCOS model: {e}")
+            print("Falling back to mock predictions")
             _loaded_model = "mock_model"
             return _loaded_model
     
     return _loaded_model
 
-def classify_ultrasound(image: np.ndarray) -> Dict[str, Any]:
+
+def load_gradcam_explainer() -> Optional[GradCAMExplainer]:
+    """Load a Grad-CAM explainer bound to the trained classification model."""
+    global _loaded_explainer
+
+    if _loaded_explainer is not None:
+        return _loaded_explainer
+
+    model = load_classification_model()
+    if model is None or model == "mock_model":
+        return None
+
+    try:
+        _loaded_explainer = GradCAMExplainer(model)
+        return _loaded_explainer
+    except Exception as exc:
+        print(f"⚠️ Unable to initialize Grad-CAM explainer: {exc}")
+        return None
+
+def classify_ultrasound(image: np.ndarray, original_image_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Classify ultrasound image for PCOS detection.
     
@@ -67,14 +90,14 @@ def classify_ultrasound(image: np.ndarray) -> Dict[str, Any]:
             # Return mock classification
             return _mock_classification()
         
-        print(f"🔍 Input image shape: {image.shape}")
+        print(f"Input image shape: {image.shape}")
         
         # Make prediction
         prediction = model.predict(image, verbose=0)
         pred_value = float(prediction[0][0])
         
         # Convert to classification result
-        predicted_class = 1 if pred_value > 0.5 else 0
+        predicted_class = 1 if pred_value >= CLASSIFICATION_THRESHOLD else 0
         confidence = pred_value if predicted_class == 1 else (1 - pred_value)
         
         # Determine diagnosis and severity
@@ -91,22 +114,42 @@ def classify_ultrasound(image: np.ndarray) -> Dict[str, Any]:
             diagnosis = "Normal Ovarian Structure"
             severity = "Mild"
         
-        return {
+        result = {
             'diagnosis': diagnosis,
             'confidence': round(float(confidence * 100), 1),
             'severity': severity,
             'predicted_class': predicted_class,
             'model_used': 'EfficientNetB4_Phase3_Trained'
         }
+
+        explainer = load_gradcam_explainer()
+        if explainer is not None:
+            try:
+                gradcam = explainer.generate(
+                    image,
+                    original_image_path=original_image_path,
+                    class_idx=predicted_class,
+                )
+                result['visualization'] = {
+                    'layerName': gradcam.layer_name,
+                    'heatmapImageDataUrl': gradcam.heatmap_data_url,
+                    'overlayImageDataUrl': gradcam.overlay_data_url,
+                }
+            except Exception as gradcam_error:
+                print(f"Grad-CAM generation failed: {gradcam_error}")
+                result['visualization'] = None
+
+        return result
         
     except Exception as e:
-        print(f"❌ Classification error: {e}")
+        print(f"Classification error: {e}")
         return {
             'diagnosis': 'Analysis Failed',
             'confidence': 0.0,
             'severity': 'Mild',
             'error': str(e),
-            'model_used': 'Error'
+            'model_used': 'Error',
+            'visualization': None,
         }
 
 def _mock_classification() -> Dict[str, Any]:
@@ -118,9 +161,10 @@ def _mock_classification() -> Dict[str, Any]:
         'diagnosis': diagnosis,
         'confidence': round(confidence, 1),
         'severity': 'Mild' if diagnosis == "Normal Ovarian Structure" else 'Moderate',
-        'model_used': 'Mock/Development'
+        'model_used': 'Mock/Development',
+        'visualization': None,
     }
 
 # Initialize model on import
-print("🔄 Initializing PCOS classification model...")
+print("Initializing PCOS classification model...")
 load_classification_model()

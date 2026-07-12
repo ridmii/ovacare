@@ -26,53 +26,7 @@ interface EducationPageProps {
   setActivePage: (page: string) => void
 }
 
-const PCOS_BLOG_ARTICLES = [
-  {
-    title: 'PCOS and Insomnia',
-    excerpt: 'Understand the link between PCOS and sleep problems, plus tips for better rest.',
-    url: 'https://www.clairepettitt.com/blog/pcos-and-insomnia',
-    source: 'Claire Pettitt',
-    image: '/assets/blogs/insomnia.jpg',
-  },
-  {
-    title: 'PCOS and IBS',
-    excerpt: 'How digestive health connects to PCOS and what you can do to manage symptoms.',
-    url: 'https://www.clairepettitt.com/blog/pcos-and-ibs',
-    source: 'Claire Pettitt',
-    image: '/assets/blogs/ibs.jpg',
-  },
-  {
-    title: '15 PCOS-Friendly Vegetarian Recipes',
-    excerpt: 'Nutritious vegetarian meal ideas designed to support hormonal balance.',
-    url: 'https://www.clairepettitt.com/blog/15-pcos-friendly-vegetarian-recipes',
-    source: 'Claire Pettitt',
-    image: '/assets/blogs/vegetarian-recipes.jpg',
-  },
-  {
-    title: 'PCOS-Friendly Soups',
-    excerpt: 'Warm, nourishing soup recipes that fit a PCOS-friendly eating plan.',
-    url: 'https://www.clairepettitt.com/blog/pcos-friendly-soups',
-    source: 'Claire Pettitt',
-    image: '/assets/blogs/soups.jpg',
-  },
-] as const
-
-const PCOS_SUCCESS_STORIES = [
-  {
-    title: 'Olympic Athlete Beat PCOS',
-    excerpt: 'How an Olympic athlete managed PCOS and continued performing at the highest level.',
-    url: 'https://www.pcosnutrition.com/olympic-athlete-beat-pcos/?srsltid=AfmBOop2S90O84iIW0w4JdudLcMa3NC_VzSQISFe4rXz9UxIDRCQwY0-',
-    source: 'PCOS Nutrition',
-    image: '/assets/blogs/olympic-athlete.jpg',
-  },
-  {
-    title: 'My PCOS Success Story',
-    excerpt: 'A personal journey of overcoming PCOS through lifestyle changes and persistence.',
-    url: 'https://thesmooco.com/blogs/blog/my-pcos-success-story?srsltid=AfmBOorvRf7NUJiB_oyG9RrP7haZUqJ1JEFWpBkdZo0VwIedwpl317IL',
-    source: 'The Smooco',
-    image: '/assets/blogs/success-story.jpg',
-  },
-] as const
+// Removed hardcoded arrays to fetch them dynamically via i18n
 
 function BlogCardImage({
   image,
@@ -304,6 +258,12 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('overview')
 
+  const tabs = t('education.tabs', { returnObjects: true }) as Array<{
+    id: string
+    label: string
+    icon: string
+  }>
+
   const iconMap: Record<string, React.ReactNode> = {
     BookOpen: <BookOpen className="w-4 h-4" />,
     Apple: <Apple className="w-4 h-4" />,
@@ -311,12 +271,6 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
     Heart: <Heart className="w-4 h-4" />,
     Brain: <Brain className="w-4 h-4" />,
   }
-
-  const tabs = t('education.tabs', { returnObjects: true }) as Array<{
-    id: string
-    label: string
-    icon: string
-  }>
 
   const containerVariants = {
     hidden: {
@@ -512,41 +466,32 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h2 className="text-2xl font-bold text-ovacare-navy mb-6">
-                    PCOS-Friendly Diet Plans
+                    {t('education.nutrition.dietPlans')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                      {
-                        name: 'Anti-Inflammatory Sri Lankan Diet',
-                        description: 'Traditional foods that reduce inflammation',
-                        foods: ['Turmeric (Kaha)', 'Gotukola', 'Fish curry', 'Coconut oil'],
-                        color: 'from-green-400 to-green-600',
-                      },
-                      {
-                        name: 'Low Glycemic Local Foods',
-                        description: 'Sri Lankan foods for stable blood sugar',
-                        foods: ['Red rice', 'Mung beans (Mu)', 'Kohila', 'Jackfruit'],
-                        color: 'from-blue-400 to-blue-600',
-                      },
-                      {
-                        name: 'Traditional Ayurvedic',
-                        description: 'Time-tested remedies for hormonal balance',
-                        foods: ['Fenugreek (Uluhaal)', 'Cinnamon (Kurundu)', 'Bitter gourd', 'Moringa (Murunga)'],
-                        color: 'from-purple-400 to-purple-600',
-                      },
-                    ].map((diet, i) => (
+                    {(t('education.nutrition.diets', { returnObjects: true }) as Array<{
+                      name: string
+                      description: string
+                      keyFoods: string[]
+                    }>).map((diet, i) => {
+                      const colors = [
+                        'from-green-400 to-green-600',
+                        'from-blue-400 to-blue-600',
+                        'from-purple-400 to-purple-600'
+                      ];
+                      return (
                       <div key={i} className="bg-white/50 p-6 rounded-xl">
                         <div
-                          className={`w-full h-2 rounded-full bg-gradient-to-r ${diet.color} mb-4`}
+                          className={`w-full h-2 rounded-full bg-gradient-to-r ${colors[i % colors.length]} mb-4`}
                         />
                         <h3 className="font-bold text-ovacare-navy mb-2">{diet.name}</h3>
                         <p className="text-sm text-ovacare-gray mb-4">{diet.description}</p>
                         <div className="space-y-2">
                           <p className="text-xs font-medium text-ovacare-purple">
-                            KEY FOODS:
+                            {t('education.nutrition.keyFoods')}
                           </p>
                           <div className="flex flex-wrap gap-1">
-                            {diet.foods.map((food, fi) => (
+                            {diet.keyFoods.map((food, fi) => (
                               <span
                                 key={fi}
                                 className="text-xs bg-white/70 px-2 py-1 rounded"
@@ -557,7 +502,7 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </GlassCard>
               </motion.div>
@@ -567,21 +512,16 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                 <motion.div variants={itemVariants}>
                   <GlassCard className="p-6">
                     <h3 className="text-xl font-bold text-ovacare-navy mb-4">
-                      7-Day Meal Plan
+                      {t('education.nutrition.mealPlan')}
                     </h3>
                     <div className="space-y-3">
-                      {[
-                        { day: 'Monday', meal: 'Red rice with fish curry and gotukola sambol' },
-                        { day: 'Tuesday', meal: 'Dhal curry with brown bread and pol sambol' },
-                        { day: 'Wednesday', meal: 'Kohila curry with red rice and tempered vegetables' },
-                        { day: 'Thursday', meal: 'Mung bean curry with string hoppers' },
-                        { day: 'Friday', meal: 'Spiced fish with steamed jackfruit curry' },
-                        { day: 'Saturday', meal: 'Bitter gourd curry with red rice and chicken' },
-                        { day: 'Sunday', meal: 'Mixed vegetable curry with coconut roti' },
-                      ].map((item, i) => (
+                      {(t('education.nutrition.mealPlanDays', { returnObjects: true }) as Array<{
+                        day: string
+                        meal: string
+                      }>).map((item, i) => (
                         <div key={i} className="flex justify-between items-center p-3 bg-white/40 rounded-lg">
                           <span className="font-medium text-ovacare-navy">{item.day}</span>
-                          <span className="text-sm text-ovacare-gray">{item.meal}</span>
+                          <span className="text-sm text-ovacare-gray text-right max-w-[60%]">{item.meal}</span>
                         </div>
                       ))}
                     </div>
@@ -591,7 +531,7 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                       onClick={generateMealPlanPDF}
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Download Full Plan
+                      {t('education.nutrition.downloadFullPlan')}
                     </GradientButton>
                   </GlassCard>
                 </motion.div>
@@ -599,16 +539,10 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                 <motion.div variants={itemVariants}>
                   <GlassCard className="p-6">
                     <h3 className="text-xl font-bold text-ovacare-navy mb-4">
-                      Foods to Avoid
+                      {t('education.nutrition.foodsToAvoidTitle')}
                     </h3>
                     <div className="space-y-3">
-                      {[
-                        { category: 'White Rice & Refined Carbs', examples: 'White rice, white bread, wade, kokis' },
-                        { category: 'Sugary Sri Lankan Treats', examples: 'Konda kevum, aluwa, sugary drinks' },
-                        { category: 'Processed Foods', examples: 'Packet noodles, biscuits, fried snacks' },
-                        { category: 'Excessive Coconut Products', examples: 'Too much coconut milk, kiribath daily' },
-                        { category: 'High Sugar Fruits', examples: 'Overripe bananas, dates, grapes' },
-                      ].map((item, i) => (
+                      {(t('education.nutrition.foodsToAvoid', { returnObjects: true }) as any[]).map((item, i) => (
                         <div key={i} className="p-3 bg-red-50 border border-red-200 rounded-lg">
                           <div className="font-medium text-red-800">{item.category}</div>
                           <div className="text-sm text-red-600">{item.examples}</div>
@@ -623,15 +557,10 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h3 className="text-xl font-bold text-ovacare-navy mb-6">
-                    Evidence-Based Supplements
+                    {t('education.nutrition.supplementsTitle')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    {[
-                      { name: 'Fenugreek (Uluhaal)', benefit: 'Traditional PCOS remedy', dosage: '500mg twice daily' },
-                      { name: 'Cinnamon (Kurundu)', benefit: 'Blood sugar control', dosage: '1-3g daily' },
-                      { name: 'Turmeric (Kaha)', benefit: 'Anti-inflammatory', dosage: '500-1000mg daily' },
-                      { name: 'Moringa (Murunga)', benefit: 'Nutrient dense superfood', dosage: '1-2g daily' },
-                    ].map((supp, i) => (
+                    {(t('education.nutrition.supplements', { returnObjects: true }) as any[]).map((supp, i) => (
                       <div key={i} className="text-center p-4 bg-white/30 rounded-lg">
                         <div className="w-12 h-12 mx-auto rounded-full bg-ovacare-purple/10 flex items-center justify-center mb-3">
                           <span className="text-lg">💊</span>
@@ -644,15 +573,19 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                   </div>
                   <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <p className="text-sm text-amber-800">
-                      <strong>Disclaimer:</strong> Always consult with your healthcare provider before
-                      starting any supplement regimen. Traditional remedies listed are common in Sri Lankan Ayurvedic practice but should be used under medical supervision.
+                      <strong>{t('education.nutrition.supplementsDisclaimer').split(':')[0]}:</strong> {t('education.nutrition.supplementsDisclaimer').split(':')[1]}
                     </p>
                   </div>
                 </GlassCard>
               </motion.div>
 
               {/* Nutrition Video */}
-              <motion.div variants={itemVariants}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5 }}
+              >
                 <GlassCard className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video bg-black">
                     <iframe
@@ -667,7 +600,7 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                     />
                   </div>
                   <div className="p-4">
-                    <h4 className="font-bold text-ovacare-navy mb-2">PCOS: What Every Woman Needs to Know | Doctor's 11-Minute Guide</h4>
+                    <h4 className="font-bold text-ovacare-navy mb-2">{t('education.nutrition.videoTitle')}</h4>
                     <p className="text-sm text-ovacare-gray flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       Dr Pal
@@ -689,23 +622,19 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h2 className="text-2xl font-bold text-ovacare-navy mb-6">
-                    PCOS Exercise Guidelines
+                    {t('education.exercise.exerciseGuidelines')}
                   </h2>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <div>
                       <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                        Why Exercise Matters for PCOS
+                        {t('education.exercise.guidelines')}
                       </h3>
+                      <p className="text-ovacare-gray mb-6">
+                        {t('education.exercise.subtitle')}
+                      </p>
                       <ul className="space-y-3">
-                        {[
-                          'Improves insulin sensitivity by up to 25%',
-                          'Helps regulate menstrual cycles',
-                          'Reduces inflammation markers',
-                          'Supports healthy weight management',
-                          'Improves mood and reduces depression',
-                          'Enhances fertility outcomes',
-                        ].map((benefit, i) => (
+                        {(t('education.exercise.benefits', { returnObjects: true }) as string[]).map((benefit, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                             <span className="text-ovacare-gray">{benefit}</span>
@@ -715,24 +644,14 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                     </div>
                     
                     <div className="bg-gradient-to-br from-ovacare-purple/10 to-ovacare-pink/10 p-6 rounded-lg">
-                      <h4 className="font-bold text-ovacare-navy mb-3">Weekly Exercise Goal</h4>
-                      <div className="text-3xl font-bold text-ovacare-purple mb-2">150 minutes</div>
-                      <p className="text-sm text-ovacare-gray mb-4">
-                        Moderate-intensity aerobic activity per week, plus 2 days of strength training
-                      </p>
+                      <h4 className="font-bold text-ovacare-navy mb-3">{t('education.exercise.weeklyGoals')}</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Cardio:</span>
-                          <span className="font-medium">75-150 min/week</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Strength:</span>
-                          <span className="font-medium">2-3 sessions/week</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>HIIT:</span>
-                          <span className="font-medium">1-2 sessions/week</span>
-                        </div>
+                        {(t('education.exercise.goals', { returnObjects: true }) as any[]).map((goal, i) => (
+                          <div key={i} className="flex justify-between">
+                            <span>{goal.type}:</span>
+                            <span className="font-medium">{goal.range}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -741,29 +660,7 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
 
               {/* Exercise Types */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    type: 'Strength Training',
-                    icon: '💪',
-                    benefits: ['Builds muscle mass', 'Improves metabolism', 'Insulin sensitivity'],
-                    examples: ['Weightlifting', 'Resistance bands', 'Bodyweight exercises'],
-                    frequency: '2-3x/week',
-                  },
-                  {
-                    type: 'Cardio Exercise',
-                    icon: '🏃‍♀️',
-                    benefits: ['Heart health', 'Weight management', 'Mood improvement'],
-                    examples: ['Brisk walking', 'Swimming', 'Cycling'],
-                    frequency: '150 min/week',
-                  },
-                  {
-                    type: 'HIIT Training',
-                    icon: '⚡',
-                    benefits: ['Time efficient', 'Metabolic boost', 'Hormone balance'],
-                    examples: ['Interval running', 'Circuit training', 'Tabata'],
-                    frequency: '1-2x/week',
-                  },
-                ].map((exercise, i) => (
+                {(t('education.exercise.exerciseTypes', { returnObjects: true }) as any[]).map((exercise, i) => (
                   <motion.div key={i} variants={itemVariants}>
                     <GlassCard className="p-6 h-full">
                       <div className="text-center mb-4">
@@ -774,8 +671,8 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                       
                       <div className="space-y-3">
                         <div>
-                          <p className="text-xs font-medium text-ovacare-gray mb-2">BENEFITS:</p>
-                          {exercise.benefits.map((benefit, bi) => (
+                          <p className="text-xs font-medium text-ovacare-gray mb-2">{t('education.exercise.benefitsLabel')}</p>
+                          {exercise.benefits.map((benefit: string, bi: number) => (
                             <div key={bi} className="text-xs bg-white/50 px-2 py-1 rounded mb-1">
                               {benefit}
                             </div>
@@ -783,8 +680,8 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                         </div>
                         
                         <div>
-                          <p className="text-xs font-medium text-ovacare-gray mb-2">EXAMPLES:</p>
-                          {exercise.examples.map((example, ei) => (
+                          <p className="text-xs font-medium text-ovacare-gray mb-2">{t('education.exercise.examplesLabel')}</p>
+                          {exercise.examples.map((example: string, ei: number) => (
                             <div key={ei} className="text-xs text-ovacare-gray">
                               • {example}
                             </div>
@@ -800,25 +697,25 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h3 className="text-xl font-bold text-ovacare-navy mb-6">
-                    4-Week Beginner Program
+                    {t('education.exercise.fourWeekProgram')}
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[...Array(4)].map((_, week) => (
-                      <div key={week} className="bg-white/40 p-4 rounded-lg">
-                        <h4 className="font-bold text-ovacare-navy mb-3">Week {week + 1}</h4>
+                    {(t('education.exercise.programWeeks', { returnObjects: true }) as any[]).map((weekData, index) => (
+                      <div key={index} className="bg-white/40 p-4 rounded-lg">
+                        <h4 className="font-bold text-ovacare-navy mb-3">{weekData.week}</h4>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span>Cardio:</span>
-                            <span>{15 + week * 5} min</span>
+                            <span>{t('education.exercise.cardioLabel') || 'Cardio:'}</span>
+                            <span>{weekData.cardio}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Strength:</span>
-                            <span>2x/week</span>
+                            <span>{t('education.exercise.strengthLabel') || 'Strength:'}</span>
+                            <span>{weekData.strength}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>HIIT:</span>
-                            <span>{week < 2 ? 'Optional' : '1x/week'}</span>
+                            <span>{t('education.exercise.hiitLabel') || 'HIIT:'}</span>
+                            <span>{weekData.hiit}</span>
                           </div>
                         </div>
                       </div>
@@ -828,11 +725,11 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                   <div className="mt-6 flex flex-col sm:flex-row gap-4">
                     <GradientButton onClick={generateExerciseProgramPDF}>
                       <Download className="w-4 h-4 mr-2" />
-                      Download Program
+                      {t('education.exercise.downloadProgram')}
                     </GradientButton>
                     <GradientButton variant="outline" onClick={addExerciseProgramToCalendar}>
                       <Calendar className="w-4 h-4 mr-2" />
-                      Add to Calendar
+                      {t('education.exercise.addToCalendar')}
                     </GradientButton>
                   </div>
                 </GlassCard>
@@ -876,50 +773,42 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h2 className="text-2xl font-bold text-ovacare-navy mb-6">
-                    PCOS and Mental Health
+                    {t('education.mental.mentalHealthTitle')}
                   </h2>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
                       <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                        Understanding the Connection
+                        {t('education.mental.understandingConnection')}
                       </h3>
                       <p className="text-ovacare-gray mb-4 leading-relaxed">
-                        Women with PCOS are 3x more likely to experience depression and anxiety.
-                        The hormonal imbalances, physical symptoms, and fertility concerns can
-                        significantly impact mental well-being.
+                        {t('education.mental.connectionText')}
                       </p>
                       
                       <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-4">
-                        <h4 className="font-semibold text-red-800 mb-2">Common Mental Health Challenges:</h4>
+                        <h4 className="font-semibold text-red-800 mb-2">{t('education.mental.mentalHealthChallenges')}</h4>
                         <ul className="space-y-1 text-sm text-red-700">
-                          <li>• Depression (rates 4-7x higher)</li>
-                          <li>• Anxiety disorders</li>
-                          <li>• Body image issues</li>
-                          <li>• Low self-esteem</li>
-                          <li>• Eating disorders</li>
-                          <li>• Relationship stress</li>
+                          {(t('education.mental.challenges', { returnObjects: true }) as string[]).map((challenge, i) => (
+                            <li key={i}>• {challenge}</li>
+                          ))}
                         </ul>
                       </div>
                     </div>
                     
                     <div>
                       <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                        Coping Strategies
+                        {t('education.mental.copingStrategies')}
                       </h3>
                       <div className="space-y-3">
-                        {[
-                          { strategy: 'Mindfulness & Meditation', desc: 'Reduce stress and improve mood' },
-                          { strategy: 'Support Groups', desc: 'Connect with others who understand' },
-                          { strategy: 'Therapy', desc: 'CBT and counseling for emotional support' },
-                          { strategy: 'Stress Management', desc: 'Techniques to lower cortisol levels' },
-                          { strategy: 'Sleep Hygiene', desc: 'Quality sleep for hormone regulation' },
-                        ].map((item, i) => (
+                        {(t('education.mental.strategies', { returnObjects: true }) as Array<{
+                          title: string
+                          description: string
+                        }>).map((item, i) => (
                           <div key={i} className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                             <Heart className="w-5 h-5 text-green-600 mt-0.5" />
                             <div>
-                              <div className="font-medium text-green-800">{item.strategy}</div>
-                              <div className="text-sm text-green-600">{item.desc}</div>
+                              <div className="font-medium text-green-800">{item.title}</div>
+                              <div className="text-sm text-green-600">{item.description}</div>
                             </div>
                           </div>
                         ))}
@@ -934,22 +823,21 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                 <motion.div variants={itemVariants} className="flex-1 w-full min-w-0">
                   <GlassCard className="p-6">
                     <h3 className="text-lg font-bold text-ovacare-navy mb-4">
-                      Crisis Resources
+                      {t('education.mental.crisisResources')}
                     </h3>
                     <div className="space-y-4">
                       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div className="font-semibold text-red-800 mb-1">Crisis Text Line</div>
-                        <div className="text-red-600">Text HOME or HOLA to 741741</div>
+                        <div className="font-semibold text-red-800 mb-1">{t('education.mental.crisisTextLine')}</div>
+                        <div className="text-red-600">{t('education.mental.crisisTextLineValue')}</div>
                       </div>
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="font-semibold text-blue-800 mb-1">National Suicide Prevention Lifeline</div>
-                        <div className="text-blue-600">988 or 1333</div>
+                        <div className="font-semibold text-blue-800 mb-1">{t('education.mental.suicidePrevention')}</div>
+                        <div className="text-blue-600">{t('education.mental.suicidePreventionValue')}</div>
                       </div>
                       <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                        <div className="font-semibold text-purple-800 mb-1">PCOS Challenge Support</div>
+                        <div className="font-semibold text-purple-800 mb-1">{t('education.mental.pcosChallenge')}</div>
                         <p className="text-sm text-purple-700 mb-2">
-                          Connect with Sri Lanka&apos;s PCOS community for peer support, educational
-                          resources, and shared experiences.
+                          {t('education.mental.pcosChallengeText')}
                         </p>
                         <a
                           href="https://web.facebook.com/pcossrilanka/?_rdc=1&_rdr#"
@@ -957,17 +845,15 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-sm font-medium text-purple-800 hover:text-purple-900 underline"
                         >
-                          Combat PCOS - Sri Lanka
+                          {t('education.mental.pcosChallengeLink')}
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                         <div className="mt-4 pt-4 border-t border-purple-200">
                           <div className="font-semibold text-purple-800 mb-1">
-                            Family Planning Association (FPA) of Sri Lanka
+                            {t('education.mental.fpaTitle')}
                           </div>
                           <p className="text-sm text-purple-700 mb-2">
-                            FPA offers comprehensive reproductive health services, counseling, and
-                            personalized care for PCOS and fertility. You can reach them directly for
-                            concerns or to schedule a consultation.
+                            {t('education.mental.fpaText')}
                           </p>
                           <div className="text-sm text-purple-800">
                             <a href="tel:0765884881" className="hover:underline">
@@ -987,15 +873,20 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                 <motion.div variants={itemVariants} className="w-full md:w-72 flex-shrink-0">
                   <GlassCard className="p-4">
                     <h3 className="text-lg font-bold text-ovacare-navy mb-3">
-                      Recommended Apps & Tools
+                      {t('education.mental.recommendedApps')}
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { name: 'Headspace', purpose: 'Meditation', rating: 4.8, image: '/assets/headspace.jpg' },
-                        { name: 'Calm', purpose: 'Mental Health', rating: 4.7, image: '/assets/calm.jpg' },
-                        { name: 'BetterHelp', purpose: 'Online Therapy', rating: 4.6, image: '/assets/betterhelp.png' },
-                        { name: 'Mood Meter', purpose: 'Emotion Tracking', rating: 4.5, image: '/assets/moodmeter.png' },
-                      ].map((app, i) => (
+                      {(() => {
+                        const baseApps = [
+                          { rating: 4.8, image: '/assets/headspace.jpg' },
+                          { rating: 4.7, image: '/assets/calm.jpg' },
+                          { rating: 4.6, image: '/assets/betterhelp.png' },
+                          { rating: 4.5, image: '/assets/moodmeter.png' },
+                        ];
+                        const tApps = t('education.mental.apps', { returnObjects: true }) as Array<{ name: string, purpose: string }>;
+                        return baseApps.map((base, i) => {
+                          const app = { ...base, ...tApps[i] };
+                          return (
                         <div
                           key={i}
                           className="flex flex-col items-center justify-center aspect-square p-2 bg-white/40 rounded-xl text-center"
@@ -1016,33 +907,31 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                             <span className="text-xs font-medium">{app.rating}</span>
                           </div>
                         </div>
-                      ))}
+                          )
+                        })
+                      })()}
                     </div>
                   </GlassCard>
                 </motion.div>
               </div>
 
               {/* Mental Health Videos */}
-              <motion.div variants={itemVariants}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-ovacare-navy">Mental Health Videos</h3>
+                  <h3 className="text-xl font-bold text-ovacare-navy">{t('education.mental.videosTitle')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[
-                      {
-                        title: 'PCOS & Mental Health',
-                        videoId: 'wmJAdzobb_k',
-                      },
-                      {
-                        title: 'Managing PCOS & Emotional Wellbeing',
-                        videoId: 'IVBScaWiVy0',
-                      },
-                    ].map((video, i) => (
+                    {(t('education.mental.videos', { returnObjects: true }) as any[]).map((video, i) => (
                       <GlassCard key={i} className="p-0 overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video bg-black">
                           <iframe
                             width="100%"
                             height="100%"
-                            src={`https://www.youtube.com/embed/${video.videoId}`}
+                            src={`https://www.youtube.com/embed/${['wmJAdzobb_k', 'IVBScaWiVy0'][i]}`}
                             title={video.title}
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -1072,43 +961,47 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
               <motion.div variants={itemVariants}>
                 <GlassCard className="p-8">
                   <h2 className="text-2xl font-bold text-ovacare-navy mb-3">
-                    Blogs & Researches
+                    {t('education.research.blogsTitle')}
                   </h2>
                   <p className="text-ovacare-gray max-w-3xl">
-                    Explore PCOS blogs, nutrition guides, and real success stories from people who
-                    have managed their condition. Click any article to read the full details.
+                    {t('education.research.blogsSubtitle')}
                   </p>
                 </GlassCard>
               </motion.div>
 
-              <motion.div variants={itemVariants}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-ovacare-navy">PCOS Blogs</h3>
+                  <h3 className="text-xl font-bold text-ovacare-navy">{t('education.research.blogsTitle')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {PCOS_BLOG_ARTICLES.map((article) => (
+                    {(t('education.research.blogs', { returnObjects: true }) as any[]).map((article, i) => (
                       <a
-                        key={article.url}
-                        href={article.url}
+                        key={i}
+                        href={['https://www.clairepettitt.com/blog/pcos-and-insomnia', 'https://www.clairepettitt.com/blog/pcos-and-ibs', 'https://www.clairepettitt.com/blog/15-pcos-friendly-vegetarian-recipes', 'https://www.clairepettitt.com/blog/pcos-friendly-soups'][i]}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block group"
                       >
                         <GlassCard className="p-0 overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-white/40 group-hover:-translate-y-1">
                           <BlogCardImage
-                            image={article.image}
+                            image={['/assets/blogs/insomnia.jpg', '/assets/blogs/ibs.jpg', '/assets/blogs/vegetarian-recipes.jpg', '/assets/blogs/soups.jpg'][i]}
                             alt={article.title}
                             source={article.source}
                           />
                           <div className="p-4">
                             <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-ovacare-purple/10 text-ovacare-purple mb-2">
-                              Blog
+                              {t('education.research.blogTag')}
                             </span>
                             <h4 className="font-bold text-ovacare-navy mb-2 group-hover:text-ovacare-purple transition-colors">
                               {article.title}
                             </h4>
                             <p className="text-sm text-ovacare-gray mb-3 line-clamp-2">{article.excerpt}</p>
                             <span className="inline-flex items-center gap-1 text-sm font-medium text-ovacare-purple">
-                              Read full article
+                              {t('education.research.readFullArticle')}
                               <ExternalLink className="w-3.5 h-3.5" />
                             </span>
                           </div>
@@ -1119,35 +1012,40 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-ovacare-navy">Success Stories</h3>
+                  <h3 className="text-xl font-bold text-ovacare-navy">{t('education.research.successStoriesTitle')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {PCOS_SUCCESS_STORIES.map((story) => (
+                    {(t('education.research.successStories', { returnObjects: true }) as any[]).map((story, i) => (
                       <a
-                        key={story.url}
-                        href={story.url}
+                        key={i}
+                        href={['https://www.pcosnutrition.com/olympic-athlete-beat-pcos/?srsltid=AfmBOop2S90O84iIW0w4JdudLcMa3NC_VzSQISFe4rXz9UxIDRCQwY0-', 'https://thesmooco.com/blogs/blog/my-pcos-success-story?srsltid=AfmBOorvRf7NUJiB_oyG9RrP7haZUqJ1JEFWpBkdZo0VwIedwpl317IL'][i]}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block group"
                       >
                         <GlassCard className="p-0 overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-white/40 group-hover:-translate-y-1">
                           <BlogCardImage
-                            image={story.image}
+                            image={['/assets/blogs/olympic-athlete.jpg', '/assets/blogs/success-story.jpg'][i]}
                             alt={story.title}
                             source={story.source}
                             variant="story"
                           />
                           <div className="p-4">
                             <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 mb-2">
-                              Success Story
+                              {t('education.research.successStoryTag')}
                             </span>
                             <h4 className="font-bold text-ovacare-navy mb-2 group-hover:text-ovacare-purple transition-colors">
                               {story.title}
                             </h4>
                             <p className="text-sm text-ovacare-gray mb-3 line-clamp-2">{story.excerpt}</p>
                             <span className="inline-flex items-center gap-1 text-sm font-medium text-ovacare-purple">
-                              Read full story
+                              {t('education.research.readFullStory')}
                               <ExternalLink className="w-3.5 h-3.5" />
                             </span>
                           </div>
@@ -1176,22 +1074,21 @@ export function EducationPage({ setActivePage }: EducationPageProps) {
         >
           <GlassCard className="p-8">
             <h3 className="text-2xl font-bold text-ovacare-navy mb-4">
-              Ready to Take Control of Your PCOS?
+              {t('education.cta.title')}
             </h3>
             <p className="text-ovacare-gray mb-6 max-w-2xl mx-auto">
-              Knowledge is power. Use our AI-powered diagnostic tool to get
-              personalized insights about your condition.
+              {t('education.cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <GradientButton size="lg" onClick={() => setActivePage('scan')}>
-                Start AI Scan
+                {t('education.cta.startScan')}
               </GradientButton>
               <GradientButton
                 variant="outline"
                 size="lg"
                 onClick={() => setActivePage('doctors')}
               >
-                Find a Specialist
+                {t('education.cta.findSpecialist')}
               </GradientButton>
             </div>
           </GlassCard>

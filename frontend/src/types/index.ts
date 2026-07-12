@@ -5,6 +5,11 @@ export interface ScanResult {
   severity: 'Mild' | 'Moderate' | 'Severe';
   recommendations: string[];
   filename: string;
+  visualization?: {
+    layerName?: string;
+    heatmapImageDataUrl?: string;
+    overlayImageDataUrl?: string;
+  } | null;
 }
 
 export interface Doctor {

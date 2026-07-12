@@ -34,6 +34,11 @@ interface ScanResults {
   severity: string
   follicleCount: number
   recommendations: string[]
+  visualization?: {
+    layerName?: string
+    heatmapImageDataUrl?: string
+    overlayImageDataUrl?: string
+  } | null
   technicalDetails: {
     follicleSize: string
     ovarianVolume: string
@@ -114,6 +119,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
           diagnosis: data.analysis.diagnosis,
           severity: data.analysis.severity,
           follicleCount: data.analysis.follicleCount,
+          visualization: data.analysis.visualization || null,
           recommendations: data.analysis.recommendations || [
             'Consult with a specialist for further evaluation',
             'Consider hormonal testing if needed',
@@ -141,6 +147,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
         diagnosis: 'Analysis Failed',
         severity: 'Unknown',
         follicleCount: 0,
+        visualization: null,
         recommendations: [
           'Analysis could not be completed',
           'Please try again with a clear ultrasound image',
@@ -173,6 +180,9 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
   const buildReportData = (): ScanReportData | null => {
     if (!results) return null
 
+    const originalScanImage = preview
+    const gradCamOverlayImage = results.visualization?.overlayImageDataUrl || null
+
     return {
       diagnosis: results.diagnosis,
       confidence: results.confidence,
@@ -180,7 +190,8 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
       follicleCount: results.follicleCount,
       recommendations: results.recommendations,
       technicalDetails: results.technicalDetails,
-      scanImageDataUrl: preview,
+      scanImageDataUrl: originalScanImage,
+      gradCamImageDataUrl: gradCamOverlayImage,
       fileName: uploadedFile?.name,
     }
   }
@@ -230,24 +241,61 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Image Viewer */}
             <GlassCard className="p-6">
-              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
-                {preview && (
-                  <img
-                    src={preview}
-                    alt="Uploaded scan"
-                    className="w-full h-full object-cover"
-                  />
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-ovacare-gray">
+                    Original scan
+                  </div>
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    {preview && (
+                      <img
+                        src={preview}
+                        alt="Uploaded ultrasound scan"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-ovacare-gray">
+                    Grad-CAM overlay
+                  </div>
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    {(results.visualization?.overlayImageDataUrl || preview) && (
+                      <img
+                        src={results.visualization?.overlayImageDataUrl || preview || ''}
+                        alt={results.visualization ? 'Grad-CAM overlay of uploaded scan' : 'Uploaded scan'}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
+              {results.visualization?.overlayImageDataUrl && (
+                <div className="mb-3 text-xs text-ovacare-gray">
+                  Heatmap generated with Grad-CAM on {results.visualization.layerName || 'the final convolutional layer'}.
+                </div>
+              )}
+              {!results.visualization?.overlayImageDataUrl && (
+                <div className="mb-3 text-xs text-ovacare-gray">
+                  Grad-CAM visualization is unavailable for this analysis.
+                </div>
+              )}
+              {results.visualization?.layerName && (
+                <div className="mb-3 text-xs text-ovacare-gray">
+                  Grad-CAM layer: {results.visualization.layerName}
+                </div>
+              )}
               <div className="flex gap-2">
                 <GradientButton
                   variant="outline"
                   size="sm"
                   className="flex-1"
-                  onClick={() => window.open(preview || '', '_blank')}
+                  onClick={() => window.open(results.visualization?.overlayImageDataUrl || preview || '', '_blank')}
                 >
                   <Eye className="w-4 h-4 mr-2" />
-                  View Full Size
+                  View Explanation
                 </GradientButton>
                 <GradientButton variant="outline" size="sm">
                   <Download className="w-4 h-4" />
@@ -374,14 +422,14 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
             <GradientButton size="lg" onClick={() => setActivePage('doctors')}>
-              Find a Specialist
+              {t('scan.resultsSection.findSpecialist')}
             </GradientButton>
             <GradientButton
               variant="outline"
               size="lg"
               onClick={() => setActivePage('education')}
             >
-              Learn About PCOS
+              {t('scan.resultsSection.learnAboutPcos')}
             </GradientButton>
             <GradientButton variant="outline" size="lg" onClick={reset}>
               {t('scan.resultsSection.uploadNewScan')}
@@ -415,18 +463,11 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
               {t('scan.analyzeButton')} 🔍
             </h2>
             <p className="text-ovacare-gray mb-8">
-              Your ultrasound is being processed by our advanced neural network.
-              This usually takes 30-60 seconds.
+              {t('scan.analyzingSubtitle')}
             </p>
 
             <div className="space-y-4 text-left max-w-md mx-auto">
-              {[
-                'Detecting follicle patterns...',
-                'Counting ovarian follicles...',
-                'Measuring ovarian volume...',
-                'Analyzing PCOS markers...',
-                'Generating confidence scores...',
-              ].map((step, i) => (
+              {(t('scan.analyzingSteps', { returnObjects: true }) as string[]).map((step, i) => (
                 <motion.div
                   key={i}
                   className="flex items-center gap-3 p-3 bg-white/30 rounded-lg"

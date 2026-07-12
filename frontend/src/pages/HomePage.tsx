@@ -405,7 +405,7 @@ export function HomePage({ setActivePage }: HomePageProps) {
             {testimonials.map((testimonial, i) => (
               <GlassCard
                 key={i}
-                className="p-6 aspect-square flex flex-col justify-between hover:shadow-lg transition-shadow"
+                className="p-6 h-full flex flex-col justify-between hover:shadow-lg transition-shadow"
                 hover
               >
                 <div>

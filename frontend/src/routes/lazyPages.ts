@@ -53,3 +53,30 @@ export const BookingConfirmationPage = lazy(
       '../pages/BookingConfirmation'
     ).then((m) => ({ default: m.BookingConfirmationPage }))
 )
+
+export const LoginPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "page-login" */
+      /* webpackMode: "lazy" */
+      '../pages/LoginPage'
+    ).then((m) => ({ default: m.LoginPage }))
+)
+
+export const SignupPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "page-signup" */
+      /* webpackMode: "lazy" */
+      '../pages/SignupPage'
+    ).then((m) => ({ default: m.SignupPage }))
+)
+
+export const ProfilePage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "page-profile" */
+      /* webpackMode: "lazy" */
+      '../pages/ProfilePage'
+    ).then((m) => ({ default: m.ProfilePage }))
+)

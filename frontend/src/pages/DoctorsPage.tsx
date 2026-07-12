@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { api } from '../utils/api'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search,
   MapPin,
@@ -374,13 +374,27 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
   }
 
   const renderFormModal = () => {
-    if (!activeForm) return null
-
     const isSpecialist = activeForm === 'specialist'
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-        <GlassCard className="w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+      <AnimatePresence>
+        {activeForm && (
+        <motion.div
+          key="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+        >
+          <motion.div
+            key="modal-content"
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="w-full max-w-lg"
+          >
+            <GlassCard className="w-full p-6 max-h-[90vh] overflow-y-auto">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-xl font-bold text-ovacare-navy">
@@ -560,8 +574,11 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
               </GradientButton>
             </form>
           )}
-        </GlassCard>
-      </div>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
+        )}
+      </AnimatePresence>
     )
   }
 
@@ -633,8 +650,8 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
             <div className="space-y-6">
               <GlassCard className="p-6">
                 <div className="text-center mb-6">
-                  <h3 className="font-bold text-ovacare-navy mb-2">Book Appointment</h3>
-                  <p className="text-sm text-ovacare-gray">Next available: {selectedDoctor.nextAvailable}</p>
+                  <h3 className="font-bold text-ovacare-navy mb-2">{t('doctors.doctorCard.bookConsultation')}</h3>
+                  <p className="text-sm text-ovacare-gray">{t('doctors.booking.nextAvailable', { defaultValue: 'Next available:' })} {selectedDoctor.nextAvailable}</p>
                 </div>
 
                 <div className="space-y-4">
@@ -688,10 +705,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
                 <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-800">Same-Day Booking</span>
+                    <span className="text-sm font-medium text-green-800">{t('doctors.booking.sameDayBooking', { defaultValue: 'Same-Day Booking' })}</span>
                   </div>
                   <p className="text-xs text-green-700">
-                    If available today, you can book appointments up to 2 hours in advance.
+                    {t('doctors.booking.sameDayNote', { defaultValue: 'If available today, you can book appointments up to 2 hours in advance.' })}
                   </p>
                 </div>
               </GlassCard>
@@ -873,12 +890,13 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
 
           {/* Doctor Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredDoctors.map((doctor) => (
+            {filteredDoctors.map((doctor, i) => (
               <motion.div
                 key={doctorKey(doctor)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.05, duration: 0.5 }}
               >
                 <GlassCard className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" 
                            onClick={() => openDoctorProfile(doctor)}>
@@ -930,9 +948,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
         {/* Bottom CTA */}
         <motion.div
           className="text-center mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5 }}
         >
           <GlassCard className="p-8">
             <h3 className="text-2xl font-bold text-ovacare-navy mb-4">

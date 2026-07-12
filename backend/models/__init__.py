@@ -6,12 +6,13 @@ This package contains machine learning models for ovarian ultrasound analysis:
 - Segmentation model for follicle counting and analysis
 """
 
-from .classification_model import classify_ultrasound, load_classification_model
+from .classification_model import classify_ultrasound, load_classification_model, load_gradcam_explainer
 from .segmentation_model import segment_follicles, load_segmentation_model
 
 __all__ = [
     'classify_ultrasound',
     'load_classification_model', 
+    'load_gradcam_explainer',
     'segment_follicles',
     'load_segmentation_model'
 ]

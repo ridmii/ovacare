@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 
 const doctorsRouter = require('./routes/doctors');
 const bookingsRouter = require('./routes/bookings');
+const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,6 +24,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
   res.json({
@@ -47,6 +50,8 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.use('/api/auth', authRouter);
+app.use('/api/profile', profileRouter);
 app.use('/api/doctors', doctorsRouter);
 app.use('/api/bookings', bookingsRouter);
 
