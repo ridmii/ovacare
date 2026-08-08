@@ -26,8 +26,8 @@ export const siOverrides: Partial<TranslationResource> = {
     careers: 'Careers',
     whatsappChannel: 'OvaCare WhatsApp',
     newsletterDescription:
-      'Subscribe to our newsletter for the latest health tips and updates.',
-    newsletterPlaceholder: 'Enter your email',
+      'නවතම සෞඛ්‍ය උපදෙස් සහ යාවත්කාලීන සඳහා අපගේ පුවත් පත්‍රිකාවට දායක වන්න.',
+    newsletterPlaceholder: 'ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න',
     newsletterSubscribe: 'Subscribe to newsletter',
     newsletterSuccess:
       "You're subscribed! Check your inbox for a confirmation email.",
@@ -67,28 +67,28 @@ export const siOverrides: Partial<TranslationResource> = {
       primaryButton: 'නිදහස් විශ්ලේෂණය ආරම්භ කරන්න',
       secondaryButton: 'වැඩිදුර ඉගෙනගන්න',
       demoCardStatus: 'AI විශ්ලේෂණය සිදුවෙමින්',
-      demoCardProgress: '94% සම්පූර්ණයි',
-      demoCardDetected: 'PCOS හඳුනාගැනිණි',
-      demoCardConfidence: '94% විශ්වාසය',
+      demoCardProgress: '98.4% සම්පූර්ණයි',
+      demoCardDetected: 'PCOS හඳුනාගෙන ඇත',
+      demoCardConfidence: '98.4% විශ්වාසය',
       demoCardFollicles: 'පෝෂක',
       demoCardOvaryVolume: 'ඩිම්බකෝෂ පරිමාණය',
       demoCardSeverity: 'තීව්‍රතාව',
       demoCardSeverityValue: 'මධ්‍යස්ථ',
-      accuracy: '94% හඳුනාගැනීමේ නිරවද්‍යතාව',
-      trusted: 'වෛද්‍යවරු 200+ විසින් විශ්වාසදායක',
+      accuracy: '98.4% හඳුනාගැනීමේ නිරවද්‍යතාව',
+      trusted: 'වෛද්‍යවරු 12+ විසින් විශ්වාසදායක',
     },
     stats: [
-      { value: '94%', label: 'නිරවද්‍යතා අනුපාතය' },
+      { value: '98.4%', label: 'නිරවද්‍යතා අනුපාතය' },
       { value: '2 min', label: 'විශ්ලේෂණ කාලය' },
       { value: '12K+', label: 'විශ්ලේෂණය කළ ස්කෑන්' },
-      { value: '200+', label: 'ප්‍රවීණ වෛද්‍යවරු' },
+      { value: '12+', label: 'ප්‍රවීණ වෛද්‍යවරු' },
     ],
     features: [
       {
         icon: '🤖',
         title: 'AI-බලයෙන් විශ්ලේෂණ',
         description:
-          'ගැඹුරු ඉගෙනීමේ ආකෘති 94% නිරවද්‍යතාවයකින් PCOS සලකුණු සඳහා අල්ට්‍රාසවුන්ඩ් රූප විශ්ලේෂණය කරයි.',
+          'ගැඹුරු ඉගෙනීමේ ආකෘති 98.4% නිරවද්‍යතාවයකින් PCOS සලකුණු සඳහා අල්ට්‍රාසවුන්ඩ් රූප විශ්ලේෂණය කරයි.',
       },
       {
         icon: '📊',
@@ -255,7 +255,7 @@ export const siOverrides: Partial<TranslationResource> = {
       },
       {
         icon: 'brain',
-        title: '98.5% නිරවද්‍යතාව',
+        title: '98.4% නිරවද්‍යතාව',
         description: 'සායනික අවස්ථා 50,000+ කට එරෙහිව තහවුරු කර ඇත',
       },
       {
@@ -347,6 +347,54 @@ export const siOverrides: Partial<TranslationResource> = {
     }
   },
 
+  profile: {
+    tabs: {
+      account: 'ගිණුම',
+      appointments: 'හමුවීම්',
+      privacy: 'පෞද්ගලිකත්වය',
+    },
+    account: {
+      editProfile: 'පැතිකඩ සංස්කරණය කරන්න',
+      fullName: 'සම්පූර්ණ නම',
+      emailAddress: 'විද්‍යුත් තැපැල් ලිපිනය',
+      changePassword: 'මුරපදය වෙනස් කරන්න',
+      currentPassword: 'වත්මන් මුරපදය',
+      newPassword: 'නව මුරපදය',
+      confirmNewPassword: 'නව මුරපදය තහවුරු කරන්න',
+      leaveBlank: '(වත්මන් මුරපදය තබා ගැනීමට හිස්ව තබන්න)',
+      passwordsDontMatch: 'මුරපද නොගැලපේ',
+      min8Chars: 'අවම අක්ෂර 8 යි',
+      saving: 'සුරකිමින් පවතී...',
+      saveChanges: 'වෙනස්කම් සුරකින්න',
+      googleAccount: 'Google ගිණුම',
+      emailAccount: 'විද්‍යුත් තැපැල් ගිණුම',
+    },
+    appointments: {
+      myAppointments: 'මගේ හමුවීම්',
+      noAppointmentsYet: 'තවම හමුවීම් නැත',
+      bookAnAppointment: 'අපගේ විශේෂඥයෙකු සමඟ හමුවීමක් වෙන්කරවා ගන්න, එය මෙහි දිස්වනු ඇත.',
+      findDoctor: 'වෛද්‍යවරයකු සොයන්න',
+      doctor: 'වෛද්‍යවරයා',
+      completed: 'සම්පූර්ණයි',
+      confirmed: 'තහවුරු කර ඇත',
+    },
+    privacy: {
+      privacySettings: 'රහස්‍යතා සැකසුම්',
+      saveUltrasound: 'අල්ට්‍රාසවුන්ඩ් ස්කෑන් රූප සුරකින්න',
+      controlData: 'OvaCare මත ඔබගේ සෞඛ්‍ය දත්ත භාවිතා කරන සහ ගබඩා කරන ආකාරය පාලනය කරන්න.',
+      allowStorage: 'AI නිරවද්‍යතාව වැඩි දියුණු කිරීමට සහ අනාගත ස්කෑන් සැසඳීම් සබල කිරීමට අපගේ ආරක්ෂිත දත්ත ගබඩාවේ ඔබ උඩුගත කළ අල්ට්‍රා සවුන්ඩ් පින්තූර ගබඩා කිරීමට OvaCare හට ඉඩ දෙන්න. ඔබට ඕනෑම වේලාවක මෙය වෙනස් කළ හැක.',
+      imagesWillBeSaved: '✓ පින්තූර සුරැකෙනු ඇත',
+      imagesWillNotBeSaved: '✗ පින්තූර සුරැකෙන්නේ නැත',
+      whatWeAlwaysStore: 'අපි සැමවිටම ගබඩා කරන දේ',
+      alwaysStoreName: 'ඔබේ නම සහ ඊමේල් ලිපිනය',
+      alwaysStoreAppt: 'හමුවීම් වෙන්කරවා ගැනීමේ විස්තර',
+      alwaysStorePrefs: 'ගිණුම් මනාප (මෙම සැකසුම වැනි)',
+      whatWeNeverStore: 'අපි කිසිවිටෙක ගබඩා නොකරන දේ (ඔබ ඉහත තේරීමක් කළහොත් හැර)',
+      neverStoreScans: 'අල්ට්රා සවුන්ඩ් ස්කෑන් රූප',
+      neverStoreAI: 'AI විශ්ලේෂණ ප්‍රතිඵල',
+    },
+  },
+
   education: {
     pageTitle: 'PCOS අධ්‍යාපන මධ්‍යස්ථානය',
     pageSubtitle: 'PCOS තේරුම් ගැනීමට සහ කළමනාකරණය කිරීමට විස්තාරාත්මක සම්පත්. ඔබගේ සෞඛ්‍ය ගමන සවිබල ගැන්වීම සඳහා විශේෂඥයින් විසින් සකසන ලද අන්තර්ගතය.',
@@ -388,6 +436,23 @@ export const siOverrides: Partial<TranslationResource> = {
       educationalVideos: 'අධ්‍යාපනික වීඩියෝ',
     },
     nutrition: {
+      diets: [
+        {
+          name: 'ප්‍රති-දාහක ශ්‍රී ලාංකීය ආහාර',
+          description: 'ප්‍රදාහය අඩු කරන සාම්ප්‍රදායික ආහාර',
+          keyFoods: ['කහ', 'ගොටුකොළ', 'මාළු කරි', 'පොල් තෙල්'],
+        },
+        {
+          name: 'අඩු ග්ලයිසමික් දේශීය ආහාර',
+          description: 'ස්ථාවර රුධිර සීනි සඳහා ශ්‍රී ලාංකීය ආහාර',
+          keyFoods: ['රතු සහල්', 'මුං ඇට', 'කොහිල', 'කොස්'],
+        },
+        {
+          name: 'සාම්ප්‍රදායික ආයුර්වේද',
+          description: 'හෝමෝන සමතුලිතතාවය සඳහා කාලය පරීක්ෂා කළ පිළියම්',
+          keyFoods: ['උළුහාල්', 'කුරුඳු', 'කරවිල', 'මුරුංගා'],
+        },
+      ],
       dietPlans: 'PCOS හිතකාමී ආහාර සැලසුම්',
       mealPlans: 'PCOS ආහාර සැලසුම්',
       mealPlansSubtitle: 'ශ්‍රී ලාංකීය රසයන්ට ගැළපෙන, හෝමෝන සමතුලිත කිරීමට උපකාරී වන ප්‍රායෝගික දෛනික සැලසුම්.',
@@ -423,6 +488,29 @@ export const siOverrides: Partial<TranslationResource> = {
       ],
     },
     exercise: {
+      exerciseTypes: [
+        {
+          type: 'ශක්තිය පුහුණු කිරීම',
+          icon: '💪',
+          benefits: ['මාංශ පේශි වර්ධනය කරයි', 'පරිවෘත්තීය වැඩි දියුණු කරයි', 'ඉන්සියුලින් සංවේදීතාව'],
+          examples: ['බර ඉසිලීම', 'ප්‍රතිරෝධක පටි', 'ශරීර බර ව්‍යායාම'],
+          frequency: 'සතියකට 2-3 වතාවක්',
+        },
+        {
+          type: 'හෘද ව්‍යායාම',
+          icon: '🏃‍♀️',
+          benefits: ['හෘද සෞඛ්‍යය', 'බර කළමනාකරණය', 'මනෝභාවය වැඩි දියුණු කිරීම'],
+          examples: ['වේගයෙන් ඇවිදීම', 'පිහිනීම', 'පාපැදි පැදීම'],
+          frequency: 'සතියකට විනාඩි 150',
+        },
+        {
+          type: 'HIIT පුහුණුව',
+          icon: '⚡',
+          benefits: ['කාලය ඉතිරි කිරීම', 'පරිවෘත්තීය වර්ධනය', 'හෝමෝන සමතුලිතතාව'],
+          examples: ['අන්තර වරින් වර දිවීම', 'කව ව්‍යායාම', 'ටබාටා'],
+          frequency: 'සතියකට 1-2 වතාවක්',
+        },
+      ],
       title: 'PCOS සඳහා ව්‍යායාම',
       subtitle: 'හෝමෝන සමතුලිතතාව සඳහා ව්‍යායාම වර්ග සහ සැලසුම්',
       exerciseGuidelines: 'PCOS ව්‍යායාම මාර්ගෝපදේශ',
@@ -639,7 +727,7 @@ export const siOverrides: Partial<TranslationResource> = {
     specialties: {
       all: 'සියලුම විශේෂඥයින්',
       gynecology: 'නාරීරෝග',
-      endocrinology: 'අන්තඃස්‍‍rāvī',
+      endocrinology: 'අන්තරාසර්ග',
       fertility: 'බැඳුම්කර',
     },
     cta: {

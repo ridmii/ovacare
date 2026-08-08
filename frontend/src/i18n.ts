@@ -122,6 +122,55 @@ const enTranslation = {
         }
       },
 
+      // Profile
+      profile: {
+        tabs: {
+          account: 'Account',
+          appointments: 'Appointments',
+          privacy: 'Privacy',
+        },
+        account: {
+          editProfile: 'Edit Profile',
+          fullName: 'Full Name',
+          emailAddress: 'Email Address',
+          changePassword: 'Change Password',
+          currentPassword: 'Current Password',
+          newPassword: 'New Password',
+          confirmNewPassword: 'Confirm New Password',
+          leaveBlank: '(leave blank to keep current)',
+          passwordsDontMatch: 'Passwords don\'t match',
+          min8Chars: 'Min. 8 characters',
+          saving: 'Saving…',
+          saveChanges: 'Save Changes',
+          googleAccount: 'Google Account',
+          emailAccount: 'Email Account',
+        },
+        appointments: {
+          myAppointments: 'My Appointments',
+          noAppointmentsYet: 'No appointments yet',
+          bookAnAppointment: 'Book an appointment with one of our specialists and it will appear here.',
+          findDoctor: 'Find a Doctor',
+          doctor: 'Doctor',
+          completed: 'Completed',
+          confirmed: 'Confirmed',
+        },
+        privacy: {
+          privacySettings: 'Privacy Settings',
+          saveUltrasound: 'Save Ultrasound Scan Images',
+          controlData: 'Control how your health data is used and stored on OvaCare.',
+          allowStorage: 'Allow OvaCare to store your uploaded ultrasound images in our secure database to improve AI accuracy and enable future scan comparisons. You can change this at any time.',
+          imagesWillBeSaved: '✓ Images will be saved',
+          imagesWillNotBeSaved: '✗ Images will not be saved',
+          whatWeAlwaysStore: 'What we always store',
+          alwaysStoreName: 'Your name and email address',
+          alwaysStoreAppt: 'Appointment booking details',
+          alwaysStorePrefs: 'Account preferences (like this setting)',
+          whatWeNeverStore: 'What we never store (unless you opt in above)',
+          neverStoreScans: 'Ultrasound scan images',
+          neverStoreAI: 'AI analysis results',
+        },
+      },
+
       // HOME PAGE
       home: {
         // Hero section
@@ -134,21 +183,21 @@ const enTranslation = {
           primaryButton: 'Start Free Analysis',
           secondaryButton: 'Learn More',
           demoCardStatus: 'AI Analysis in Progress',
-          demoCardProgress: '94% Complete',
+          demoCardProgress: '98.4% Complete',
           demoCardDetected: 'PCOS Detected',
-          demoCardConfidence: '94% Confidence',
+          demoCardConfidence: '98.4% Confidence',
           demoCardFollicles: 'Follicles',
           demoCardOvaryVolume: 'Ovary Volume',
           demoCardSeverity: 'Severity',
           demoCardSeverityValue: 'Moderate',
-          accuracy: '94% Detection Accuracy',
-          trusted: 'Trusted by 200+ Doctors',
+          accuracy: '98.4% Detection Accuracy',
+          trusted: 'Trusted by 12+ Doctors',
         },
 
         // Stats section
         stats: [
           {
-            value: '98.5%',
+            value: '98.4%',
             label: 'Accuracy Rate',
           },
           {
@@ -170,7 +219,7 @@ const enTranslation = {
           {
             icon: '🤖',
             title: 'AI-Powered Analysis',
-            description: 'Deep learning models analyze ultrasound images for PCOS markers with 94% accuracy.',
+            description: 'Deep learning models analyze ultrasound images for PCOS markers with 98.4% accuracy.',
           },
           {
             icon: '📊',
@@ -361,7 +410,7 @@ const enTranslation = {
           },
           {
             icon: 'brain',
-            title: '98.5% Accuracy',
+            title: '98.4% Accuracy',
             description: 'Validated against 50,000+ clinical cases',
           },
           {

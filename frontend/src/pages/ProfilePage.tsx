@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  User, Mail, Lock, Camera, Calendar, Clock, MapPin,
+  ArrowLeft, User, Mail, Lock, Camera, Calendar, Clock, MapPin,
   Stethoscope, ShieldCheck, Eye, EyeOff, CheckCircle,
-  AlertCircle, ChevronRight, ImageOff, Loader2, Trash2, UserCircle2, X,
+  AlertCircle, ChevronRight, ImageOff, Loader2, Trash2, UserCircle2, X, Edit2
 } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 import { GradientButton } from '../components/GradientButton'
@@ -27,6 +27,7 @@ interface Booking {
     specialty: string
     hospital: string
     location: string
+    availableSlots?: { date: string, slots: string[] }[]
   }
 }
 
@@ -61,6 +62,16 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
   const [apptLoading, setApptLoading] = useState(false)
   const [apptError, setApptError] = useState<string | null>(null)
 
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelLoading, setCancelLoading] = useState(false)
+
+  const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null)
+  const [editDate, setEditDate] = useState('')
+  const [editTime, setEditTime] = useState('')
+  const [editLoading, setEditLoading] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
+
   // ── Privacy / consent state ─────────────────────────────────────────────
   const [saveScans, setSaveScans] = useState(false)
   const [privacyLoading, setPrivacyLoading] = useState(false)
@@ -86,6 +97,9 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
           const data = await res.json()
           setUser(data.user)
           setSaveScans(data.user.saveUltrasoundImages ?? false)
+        } else if (res.status === 401 || res.status === 404) {
+          logout()
+          setActivePage('login')
         }
       } catch {}
     }
@@ -105,6 +119,58 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
       .then((d) => { setBookings(d.bookings || []); setApptLoading(false) })
       .catch(() => { setApptError('Could not load appointments.'); setApptLoading(false) })
   }, [tab])
+
+  // ── Bookings Edit & Cancel ──────────────────────────────────────────────
+  async function handleCancelBooking() {
+    if (!bookingToCancel) return
+    setCancelLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/bookings/${bookingToCancel._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ reason: cancelReason })
+      })
+      if (res.ok) {
+        setBookings(prev => prev.map(b => b._id === bookingToCancel._id ? { ...b, status: 'cancelled' } : b))
+        setBookingToCancel(null)
+        setCancelReason('')
+      } else {
+        alert('Failed to cancel booking')
+      }
+    } catch (e) {
+      alert('Error cancelling booking')
+    }
+    setCancelLoading(false)
+  }
+
+  async function handleEditBooking() {
+    if (!bookingToEdit || !editDate || !editTime) return
+    setEditLoading(true)
+    setEditError(null)
+    try {
+      const res = await fetch(`${API_BASE}/api/bookings/${bookingToEdit._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({ appointmentDate: editDate, timeSlot: editTime })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setBookings(prev => prev.map(b => b._id === bookingToEdit._id ? { ...b, appointmentDate: data.booking.appointmentDate, timeSlot: data.booking.timeSlot } : b))
+        setBookingToEdit(null)
+      } else {
+        setEditError(data.error || 'Failed to edit booking')
+      }
+    } catch (e) {
+      setEditError('Network error while editing booking')
+    }
+    setEditLoading(false)
+  }
 
   // ── Avatar handling ─────────────────────────────────────────────────────
   function handleAvatarClick() { fileInputRef.current?.click() }
@@ -145,6 +211,9 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
         if (fileInputRef.current) fileInputRef.current.value = ''
         setUser(data.user)
         saveSession(getToken()!, data.user)
+      } else if (res.status === 401) {
+        logout()
+        setActivePage('login')
       }
     } catch {}
     setDeleteLoading(false)
@@ -225,6 +294,14 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f8f7ff] via-[#fff7fb] to-[#eef7ff] px-4 py-10 sm:px-6 lg:px-8">
+      <button
+        onClick={() => setActivePage('home')}
+        className="absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/50 text-ovacare-navy shadow-sm backdrop-blur-md transition hover:bg-white/80 sm:left-8 sm:top-8"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
       <FloatingElements variant="purple" />
 
       <div className="relative z-10 mx-auto max-w-4xl">
@@ -260,7 +337,12 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
               {/* Delete button — only shown when there's a photo */}
               {hasPhoto && (
                 <button
-                  onClick={handleAvatarDelete}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleAvatarDelete();
+                  }}
                   disabled={avatarLoading || deleteLoading}
                   className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white border-2 border-red-400 shadow-md hover:bg-red-500 hover:text-white text-red-400 transition disabled:opacity-50"
                   title="Remove photo"
@@ -277,7 +359,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
               <p className="text-ovacare-gray text-sm mt-1">{user?.email}</p>
               <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-ovacare-purple/10 px-3 py-1 text-xs font-medium text-ovacare-purple">
                 <ShieldCheck className="h-3 w-3" />
-                {user?.provider === 'google' ? 'Google Account' : 'Email Account'}
+                {user?.provider === 'google' ? t('profile.account.googleAccount', { defaultValue: 'Google Account' }) : t('profile.account.emailAccount', { defaultValue: 'Email Account' })}
               </span>
             </div>
           </div>
@@ -353,7 +435,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                     <div className="rounded-2xl border border-dashed border-gray-200 p-4 space-y-4">
                       <p className="text-sm font-medium text-ovacare-navy flex items-center gap-2">
                         <Lock className="h-4 w-4 text-ovacare-purple" />
-                        Change Password <span className="text-ovacare-gray font-normal">{t('profile.account.leaveBlank', { defaultValue: '(leave blank to keep current)' })}</span>
+                        {t('profile.account.changePassword', { defaultValue: 'Change Password' })} <span className="text-ovacare-gray font-normal">{t('profile.account.leaveBlank', { defaultValue: '(leave blank to keep current)' })}</span>
                       </p>
 
                       {/* Current password */}
@@ -381,7 +463,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                           <div className="relative">
                             <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input type={showNew ? 'text' : 'password'} value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)} placeholder="Min. 8 characters"
+                              onChange={(e) => setNewPassword(e.target.value)} placeholder={t('profile.account.min8Chars', { defaultValue: 'Min. 8 characters' }) as string}
                               className="block w-full rounded-xl border border-gray-200 bg-white/70 py-2.5 pl-11 pr-11 text-sm text-ovacare-navy outline-none focus:ring-2 focus:ring-ovacare-purple"
                             />
                             <button type="button" onClick={() => setShowNew((v) => !v)}
@@ -410,7 +492,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
 
                     <div className="flex justify-end gap-3 pt-2">
                       <GradientButton type="submit" disabled={accountLoading} className="px-8">
-                        {accountLoading ? 'Saving…' : 'Save Changes'}
+                        {accountLoading ? t('profile.account.saving', { defaultValue: 'Saving…' }) : t('profile.account.saveChanges', { defaultValue: 'Save Changes' })}
                       </GradientButton>
                     </div>
                   </form>
@@ -443,10 +525,10 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                       </div>
                       <p className="text-lg font-semibold text-ovacare-navy">{t('profile.appointments.noAppointmentsYet', { defaultValue: 'No appointments yet' })}</p>
                       <p className="text-sm text-ovacare-gray max-w-xs">
-                        Book an appointment with one of our specialists and it will appear here.
+                        {t('profile.appointments.bookAnAppointment', { defaultValue: 'Book an appointment with one of our specialists and it will appear here.' })}
                       </p>
                       <GradientButton size="sm" onClick={() => setActivePage('doctors')}>
-                        Find a Doctor
+                        {t('profile.appointments.findDoctor', { defaultValue: 'Find a Doctor' })}
                       </GradientButton>
                     </div>
                   )}
@@ -455,7 +537,9 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                     <div className="space-y-4">
                       {bookings.map((b) => {
                         const date = new Date(b.appointmentDate)
-                        const isPast = date < new Date()
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        const isPast = date < today
                         return (
                           <motion.div
                             key={b._id}
@@ -467,7 +551,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-semibold text-ovacare-navy truncate">
-                                {b.doctorId?.name || 'Doctor'}
+                                {b.doctorId?.name || t('profile.appointments.doctor', { defaultValue: 'Doctor' })}
                               </p>
                               <p className="text-sm text-ovacare-gray truncate">{b.doctorId?.specialty}</p>
                               <div className="mt-1.5 flex flex-wrap gap-3 text-xs text-ovacare-gray">
@@ -485,13 +569,30 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                                 )}
                               </div>
                             </div>
-                            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                              b.status === 'confirmed'
-                                ? isPast ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}>
-                              {b.status === 'confirmed' ? (isPast ? 'Completed' : 'Confirmed') : b.status}
-                            </span>
+                            <div className="flex flex-col gap-2 shrink-0 items-end">
+                              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                                b.status === 'confirmed'
+                                  ? isPast ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-700'
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
+                                {b.status === 'confirmed' ? (isPast ? t('profile.appointments.completed', { defaultValue: 'Completed' }) : t('profile.appointments.confirmed', { defaultValue: 'Confirmed' })) : b.status}
+                              </span>
+                              {!isPast && b.status === 'confirmed' && (
+                                <div className="flex gap-2 mt-1">
+                                  <button onClick={() => {
+                                      setBookingToEdit(b)
+                                      const yyyyMmDd = new Date(b.appointmentDate).toISOString().split('T')[0]
+                                      setEditDate(yyyyMmDd)
+                                      setEditTime(b.timeSlot)
+                                    }} className="text-xs text-ovacare-navy hover:text-ovacare-purple flex items-center gap-1 font-medium bg-white/50 px-2 py-1 rounded-md border border-white/60">
+                                    <Edit2 className="h-3 w-3" /> Edit
+                                  </button>
+                                  <button onClick={() => setBookingToCancel(b)} className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 font-medium bg-red-50 px-2 py-1 rounded-md border border-red-100">
+                                    <Trash2 className="h-3 w-3" /> Cancel
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </motion.div>
                         )
                       })}
@@ -507,7 +608,7 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                 <GlassCard className="p-6 sm:p-8" glow>
                   <h2 className="text-xl font-bold text-ovacare-navy mb-2">{t('profile.privacy.privacySettings', { defaultValue: 'Privacy Settings' })}</h2>
                   <p className="text-sm text-ovacare-gray mb-8">
-                    Control how your health data is used and stored on OvaCare.
+                    {t('profile.privacy.controlData', { defaultValue: 'Control how your health data is used and stored on OvaCare.' })}
                   </p>
 
                   {privacyMsg && (
@@ -534,11 +635,11 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                         <div>
                           <p className="font-semibold text-ovacare-navy">{t('profile.privacy.saveUltrasound', { defaultValue: 'Save Ultrasound Scan Images' })}</p>
                           <p className="mt-1 text-sm text-ovacare-gray leading-relaxed">
-                            Allow OvaCare to store your uploaded ultrasound images in our secure database to improve AI accuracy and enable future scan comparisons. You can change this at any time.
+                            {t('profile.privacy.allowStorage', { defaultValue: 'Allow OvaCare to store your uploaded ultrasound images in our secure database to improve AI accuracy and enable future scan comparisons. You can change this at any time.' })}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-2">
                             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${saveScans ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                              {saveScans ? '✓ Images will be saved' : '✗ Images will not be saved'}
+                              {saveScans ? t('profile.privacy.imagesWillBeSaved', { defaultValue: '✓ Images will be saved' }) : t('profile.privacy.imagesWillNotBeSaved', { defaultValue: '✗ Images will not be saved' })}
                             </span>
                           </div>
                         </div>
@@ -562,10 +663,14 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                   <div className="mt-6 rounded-2xl border border-ovacare-purple/20 bg-ovacare-purple/5 p-5">
                     <p className="text-sm font-semibold text-ovacare-navy mb-3 flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-ovacare-purple" />
-                      What we always store
+                      {t('profile.privacy.whatWeAlwaysStore', { defaultValue: 'What we always store' })}
                     </p>
                     <ul className="space-y-1.5 text-sm text-ovacare-gray">
-                      {['Your name and email address', 'Appointment booking details', 'Account preferences (like this setting)'].map((item) => (
+                      {[
+                        t('profile.privacy.alwaysStoreName', { defaultValue: 'Your name and email address' }),
+                        t('profile.privacy.alwaysStoreAppt', { defaultValue: 'Appointment booking details' }),
+                        t('profile.privacy.alwaysStorePrefs', { defaultValue: 'Account preferences (like this setting)' })
+                      ].map((item) => (
                         <li key={item} className="flex items-center gap-2">
                           <ChevronRight className="h-3.5 w-3.5 text-ovacare-purple shrink-0" /> {item}
                         </li>
@@ -573,10 +678,13 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
                     </ul>
                     <p className="text-sm font-semibold text-ovacare-navy mt-4 mb-3 flex items-center gap-2">
                       <Trash2 className="h-4 w-4 text-gray-400" />
-                      What we never store (unless you opt in above)
+                      {t('profile.privacy.whatWeNeverStore', { defaultValue: 'What we never store (unless you opt in above)' })}
                     </p>
                     <ul className="space-y-1.5 text-sm text-ovacare-gray">
-                      {['Ultrasound scan images', 'AI analysis results'].map((item) => (
+                      {[
+                        t('profile.privacy.neverStoreScans', { defaultValue: 'Ultrasound scan images' }),
+                        t('profile.privacy.neverStoreAI', { defaultValue: 'AI analysis results' })
+                      ].map((item) => (
                         <li key={item} className="flex items-center gap-2">
                           <ChevronRight className="h-3.5 w-3.5 text-gray-400 shrink-0" /> {item}
                         </li>
@@ -589,6 +697,128 @@ export function ProfilePage({ setActivePage }: ProfilePageProps) {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* ── CANCEL BOOKING MODAL ── */}
+      <AnimatePresence>
+        {bookingToCancel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setBookingToCancel(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-xl"
+            >
+              <h3 className="text-xl font-bold text-ovacare-navy">Cancel Appointment</h3>
+              <p className="text-sm text-ovacare-gray mt-2">Are you sure you want to cancel this appointment with {bookingToCancel?.doctorId?.name}? This action cannot be undone.</p>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-ovacare-navy mb-1">Reason for cancellation (optional)</label>
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-sm focus:border-ovacare-purple focus:ring-ovacare-purple"
+                  rows={3}
+                  placeholder="Tell us why you are cancelling..."
+                />
+              </div>
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setBookingToCancel(null)}
+                  className="px-4 py-2 text-sm font-medium text-ovacare-gray hover:text-ovacare-navy bg-gray-100 rounded-xl"
+                >
+                  Keep Appointment
+                </button>
+                <button
+                  onClick={handleCancelBooking}
+                  disabled={cancelLoading}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl disabled:opacity-50"
+                >
+                  {cancelLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Confirm Cancellation
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── EDIT BOOKING MODAL ── */}
+      <AnimatePresence>
+        {bookingToEdit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setBookingToEdit(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            >
+              <h3 className="text-xl font-bold text-ovacare-navy">Edit Appointment</h3>
+              {editError && <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">{editError}</div>}
+              
+              <div className="mt-4 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-ovacare-navy mb-1">Select New Date</label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={editDate}
+                    onChange={(e) => {
+                      setEditDate(e.target.value)
+                      setEditTime('') // reset time when date changes
+                    }}
+                    className="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-sm focus:border-ovacare-purple focus:ring-ovacare-purple"
+                  />
+                </div>
+
+                {editDate && (
+                  <div>
+                    <label className="block text-sm font-medium text-ovacare-navy mb-1">Select New Time</label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {[
+                        '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+                        '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM'
+                      ].map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => setEditTime(time)}
+                          className={`rounded-xl border p-2 text-sm transition-all ${
+                            editTime === time
+                              ? 'border-ovacare-purple bg-ovacare-purple/10 text-ovacare-purple font-semibold'
+                              : 'border-gray-200 bg-white text-ovacare-gray hover:border-ovacare-purple/30'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setBookingToEdit(null)}
+                  className="px-4 py-2 text-sm font-medium text-ovacare-gray hover:text-ovacare-navy bg-gray-100 rounded-xl"
+                >
+                  Discard Changes
+                </button>
+                <GradientButton
+                  size="sm"
+                  disabled={editLoading || !editDate || !editTime}
+                  onClick={handleEditBooking}
+                >
+                  {editLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+                </GradientButton>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

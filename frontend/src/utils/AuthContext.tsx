@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { getStoredUser, getToken, clearSession, AuthUser } from './authService'
+import { getStoredUser, getToken, clearSession, AuthUser, saveSession } from './authService'
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -30,7 +30,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setUser = useCallback((u: AuthUser | null) => {
     setUserState(u)
-    setToken(getToken())
+    const currentToken = getToken()
+    if (u && currentToken) {
+      saveSession(currentToken, u)
+    }
   }, [])
 
   const logout = useCallback(() => {

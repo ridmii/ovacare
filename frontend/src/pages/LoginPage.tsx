@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useGoogleLogin } from '@react-oauth/google'
-import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, Stethoscope, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, Stethoscope, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 import { GradientButton } from '../components/GradientButton'
 import { FloatingElements } from '../components/FloatingElements'
@@ -91,6 +91,14 @@ export function LoginPage({ setActivePage }: LoginPageProps) {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f8f7ff] via-[#fff7fb] to-[#eef7ff] px-4 py-12 sm:px-6 lg:px-8">
+      <button
+        onClick={() => setActivePage('home')}
+        className="absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/50 text-ovacare-navy shadow-sm backdrop-blur-md transition hover:bg-white/80 sm:left-8 sm:top-8"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
       <FloatingElements variant="purple" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl items-center">

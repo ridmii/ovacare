@@ -129,12 +129,16 @@ router.delete('/avatar', requireAuth, async (req, res) => {
     // Remove file from disk if it exists
     if (user.profileImage) {
       const filePath = path.join(__dirname, '..', user.profileImage);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      user.profileImage = null;
+      try {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch (fileErr) {
+        console.error('[profile/avatar DELETE file error]', fileErr);
+      }
+      user.profileImage = undefined;
     }
 
     // Also clear the default/Google avatar if present
-    user.avatar = null;
+    user.avatar = undefined;
     await user.save();
 
     res.json({ user });
@@ -167,10 +171,18 @@ router.patch('/ultrasound-consent', requireAuth, async (req, res) => {
 router.get('/appointments', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    let query;
+    if (user && user.email) {
+      const escapedEmail = user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regexEmail = new RegExp('^' + escapedEmail + '$', 'i');
+      query = { $or: [{ userId: req.userId }, { patientEmail: regexEmail }] };
+    } else {
+      query = { userId: req.userId };
+    }
 
-    const bookings = await Booking.find({ patientEmail: user.email })
-      .populate('doctorId', 'name specialty hospital location avatar')
+    const bookings = await Booking.find(query)
+      .populate('doctorId', 'name specialty hospital location avatar availableSlots')
       .sort({ appointmentDate: -1 });
 
     res.json({ bookings });

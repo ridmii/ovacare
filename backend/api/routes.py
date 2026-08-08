@@ -74,14 +74,16 @@ def upload_scan():
         print(f"✅ Classification result: {classification_result['diagnosis']}")  # Debug log
         
         print("🔬 Running follicle segmentation...")  # Debug log  
-        segmentation_result = segment_follicles(processed_image, classification_result)
-        print(f"✅ Segmentation result: {segmentation_result['follicle_count']} follicles")  # Debug log
+        segmentation_result = segment_follicles(processed_image, classification_result, original_image_path=filepath)
+        print(f"✅ Segmentation result: {segmentation_result['follicle_count']} follicles (method: {segmentation_result.get('model_used', 'unknown')})")  # Debug log
         
         # Generate response
         analysis = {
             'diagnosis': classification_result['diagnosis'],
             'confidence': classification_result['confidence'],
             'follicleCount': segmentation_result['follicle_count'],
+            'avgFollicleSize': segmentation_result.get('avg_follicle_size', 0),
+            'follicleDistribution': segmentation_result.get('follicle_distribution', 'Unknown'),
             'severity': classification_result['severity'],
             'recommendations': generate_recommendations(classification_result, segmentation_result),
             'visualization': classification_result.get('visualization'),

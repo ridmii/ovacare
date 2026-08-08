@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle, Star } from 'lucide-react'
+import { CheckCircle, Star, Brain, BarChart3, GraduationCap, Stethoscope, UploadCloud, FileSearch } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 import { GradientButton } from '../components/GradientButton'
 import { FloatingElements } from '../components/FloatingElements'
@@ -14,6 +14,9 @@ const FEATURE_COLORS = [
   'text-ovacare-deep',
   'text-ovacare-coral',
 ]
+
+const FEATURE_ICONS = [Brain, BarChart3, GraduationCap, Stethoscope]
+const PROCESS_ICONS = [UploadCloud, Brain, FileSearch, Stethoscope]
 
 interface HomePageProps {
   setActivePage: (page: string) => void
@@ -284,7 +287,10 @@ export function HomePage({ setActivePage }: HomePageProps) {
                   <div
                     className={`w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center mb-6 ${feature.color}`}
                   >
-                    <Emoji text={feature.icon} size={28} />
+                    {(() => {
+                      const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
+                      return <Icon className="w-7 h-7" />;
+                    })()}
                   </div>
                   <h3 className="text-xl font-bold text-ovacare-navy mb-3">
                     {feature.title}
@@ -357,7 +363,10 @@ export function HomePage({ setActivePage }: HomePageProps) {
                     <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-ovacare-purple to-ovacare-deep flex items-center justify-center text-white font-bold shadow-md">
                       {step.number}
                     </div>
-                    <Emoji text={step.icon} size={36} />
+                    {(() => {
+                      const Icon = PROCESS_ICONS[i % PROCESS_ICONS.length];
+                      return <Icon className="w-10 h-10 text-ovacare-navy" />;
+                    })()}
                   </div>
                   <h3 className="text-xl font-bold text-ovacare-navy mb-3">
                     {step.title}

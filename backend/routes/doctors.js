@@ -105,10 +105,8 @@ router.isSlotAvailable = async function isSlotAvailable(doctorId, dateStr, timeS
   const doctor = await Doctor.findById(doctorId);
   if (!doctor) return { ok: false, error: 'Doctor not found', status: 404 };
 
-  const dayEntry = (doctor.availableSlots || []).find((d) => d.date === dateStr);
-  if (!dayEntry || !dayEntry.slots.includes(timeSlot)) {
-    return { ok: false, error: 'Selected time slot is not available for this doctor', status: 400 };
-  }
+  // We now accept any standard slot on any date, as long as it's not already booked
+  // (Frontend handles providing the standard slots)
 
   const existing = await Booking.findOne({
     doctorId,

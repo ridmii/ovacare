@@ -253,7 +253,7 @@
 }
 
 .progress-fill {
-  width: 94%;
+  width: 98.4%;
   height: 100%;
   background: linear-gradient(to right, #667eea, #f093fb);
   border-radius: 3px;
@@ -265,7 +265,7 @@
     width: 0%;
   }
   to {
-    width: 94%;
+    width: 98.4%;
   }
 }
 

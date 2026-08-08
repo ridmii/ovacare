@@ -97,8 +97,8 @@ export function Footer({ setActivePage }: FooterProps) {
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ovacare-purple via-ovacare-pink to-ovacare-coral" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-ovacare-purple to-ovacare-deep flex items-center justify-center mr-2">
                 <Activity className="text-white w-5 h-5" />
@@ -170,7 +170,7 @@ export function Footer({ setActivePage }: FooterProps) {
             </ul>
           </div>
 
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h3 className="text-sm font-bold text-ovacare-navy uppercase tracking-wider mb-4">
               {t('footer.followUs')}
             </h3>

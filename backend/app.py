@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import sys
 from dotenv import load_dotenv
 from api.routes import api_bp
 from utils.helpers import initialize_models
@@ -8,6 +9,10 @@ from config.email_config import get_email_config
 from services.migrate_local_data import migrate_local_data_to_mongo
 # from services.mongodb_service import mongodb_service  # Temporarily disabled - will re-enable once deps are fixed
 import logging
+
+# Ensure UTF-8 output on Windows terminals
+if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 # Load environment variables from backend/.env regardless of cwd.
 # override=True ensures .env wins over stale empty vars left from an earlier process start.
@@ -35,7 +40,7 @@ def create_app():
         ).split(',')
         if origin.strip()
     ]
-    print(f"🌐 CORS origins loaded: {cors_origins}")  # Debug log
+    print(f"[CORS] Origins loaded: {cors_origins}")
     CORS(
         app,
         resources={r'/api/*': {

@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { api } from '../utils/api';
+import { useAuth } from '../utils/AuthContext';
 import { ArrowLeft, Calendar, Clock, Loader2, MapPin, Stethoscope } from 'lucide-react';
 import { GlassCard } from '../components/GlassCard';
 import { GradientButton } from '../components/GradientButton';
@@ -40,15 +41,32 @@ export function BookingPage() {
   const { doctorId } = useParams<{ doctorId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const [doctor, setDoctor] = useState<DoctorDetails | null>(null);
   const [loadingDoctor, setLoadingDoctor] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [form, setForm] = useState<BookingForm>(initialForm);
+  const [form, setForm] = useState<BookingForm>({
+    patientName: user?.name || '',
+    patientEmail: user?.email || '',
+    patientPhone: '',
+    reasonForVisit: '',
+  });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  // If user logs in or auth context loads after initial mount
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        patientName: prev.patientName || user.name || '',
+        patientEmail: prev.patientEmail || user.email || '',
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,21 +95,19 @@ export function BookingPage() {
     };
   }, [doctorId, t]);
 
-  const availableDates = useMemo(
-    () => (doctor?.availableSlots || []).map((d) => d.date),
-    [doctor]
-  );
+  const minDate = new Date().toISOString().split('T')[0];
 
-  const minDate = availableDates[0] || '';
-  const maxDate = availableDates[availableDates.length - 1] || '';
+  const STANDARD_SLOTS = [
+    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+    '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM'
+  ];
 
   const slotsForSelectedDate = useMemo(() => {
     if (!doctor || !selectedDate) return [];
-    return doctor.availableSlots.find((d) => d.date === selectedDate)?.slots || [];
+    return STANDARD_SLOTS;
   }, [doctor, selectedDate]);
 
   const handleDateChange = (value: string) => {
-    if (!availableDates.includes(value)) return;
     setSelectedDate(value);
     setSelectedTime('');
     setSubmitError('');
@@ -115,6 +131,7 @@ export function BookingPage() {
     try {
       const { data } = await api.post('/api/bookings', {
         doctorId,
+        userId: user?._id || undefined,
         patientName: form.patientName.trim(),
         patientEmail: form.patientEmail.trim(),
         patientPhone: form.patientPhone.trim(),
@@ -205,7 +222,6 @@ export function BookingPage() {
                     type="date"
                     value={selectedDate}
                     min={minDate}
-                    max={maxDate}
                     onChange={(e) => handleDateChange(e.target.value)}
                     required
                   />

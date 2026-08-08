@@ -222,7 +222,7 @@
 }
 
 .progress-fill {
-  width: 94%;
+  width: 98.4%;
   height: 100%;
   background: linear-gradient(90deg, #667eea, #764ba2);
   border-radius: 2px;
@@ -231,7 +231,7 @@
 
 @keyframes progressFill {
   from { width: 0%; }
-  to { width: 94%; }
+  to { width: 98.4%; }
 }
 
 .demo-content {

@@ -27,8 +27,8 @@ export const taOverrides: Partial<TranslationResource> = {
     careers: 'Careers',
     whatsappChannel: 'OvaCare WhatsApp',
     newsletterDescription:
-      'Subscribe to our newsletter for the latest health tips and updates.',
-    newsletterPlaceholder: 'Enter your email',
+      'சமீபத்திய சுகாதார குறிப்புகள் மற்றும் புதுப்பிப்புகளுக்கு எங்கள் செய்திமடலுக்கு குழுசேரவும்.',
+    newsletterPlaceholder: 'உங்கள் மின்னஞ்சலை உள்ளிடவும்',
     newsletterSubscribe: 'Subscribe to newsletter',
     newsletterSuccess:
       "You're subscribed! Check your inbox for a confirmation email.",
@@ -68,28 +68,28 @@ export const taOverrides: Partial<TranslationResource> = {
       primaryButton: 'இலவச பகுப்பாய்வைத் தொடங்குங்கள்',
       secondaryButton: 'மேலும் அறிக',
       demoCardStatus: 'AI பகுப்பாய்வு நடைபெறுகிறது',
-      demoCardProgress: '94% முடிந்தது',
-      demoCardDetected: 'PCOS கண்டறியப்பட்டது',
-      demoCardConfidence: '94% நம்பிக்கை',
+      demoCardProgress: '98.4% முடிந்தது',
+      demoCardDetected: 'PCOS கண்டறியப்பட்டுள்ளது',
+      demoCardConfidence: '98.4% நம்பிக்கை',
       demoCardFollicles: 'நுண்ணறைகள்',
       demoCardOvaryVolume: 'கருப்பை அளவு',
       demoCardSeverity: 'தீவிரத்தன்மை',
       demoCardSeverityValue: 'மிதமான',
-      accuracy: '94% கண்டறிதல் துல்லியம்',
-      trusted: '200+ மருத்துவர்களால் நம்பப்படுகிறது',
+      accuracy: '98.4% கண்டறிதல் துல்லியம்',
+      trusted: '12+ மருத்துவர்களால் நம்பப்படுகிறது',
     },
     stats: [
-      { value: '94%', label: 'துல்லிய விகிதம்' },
+      { value: '98.4%', label: 'துல்லிய விகிதம்' },
       { value: '2 min', label: 'பகுப்பாய்வு நேரம்' },
       { value: '12K+', label: 'பகுப்பாய்வு செய்யப்பட்ட ஸ்கேன்கள்' },
-      { value: '200+', label: 'நிபுண மருத்துவர்கள்' },
+      { value: '12+', label: 'நிபுண மருத்துவர்கள்' },
     ],
     features: [
       {
         icon: '🤖',
         title: 'AI-ஆல் இயக்கப்படும் பகுப்பாய்வு',
         description:
-          'ஆழமான கற்றல் மாதிரிகள் 94% துல்லியத்துடன் PCOS குறிகளுக்காக அல்ட்ராசவுண்ட் படங்களை பகுப்பாய்வு செய்கின்றன.',
+          'ஆழமான கற்றல் மாதிரிகள் 98.4% துல்லியத்துடன் PCOS குறிகளுக்காக அல்ட்ராசவுண்ட் படங்களை பகுப்பாய்வு செய்கின்றன.',
       },
       {
         icon: '📊',
@@ -256,7 +256,7 @@ export const taOverrides: Partial<TranslationResource> = {
       },
       {
         icon: 'brain',
-        title: '98.5% துல்லியம்',
+        title: '98.4% துல்லியம்',
         description: '50,000+ மருத்துவ வழக்குகளுக்கு எதிராக சரிபார்க்கப்பட்டது',
       },
       {
@@ -348,6 +348,53 @@ export const taOverrides: Partial<TranslationResource> = {
     }
   },
 
+  profile: {
+    tabs: {
+      account: 'கணக்கு',
+      appointments: 'நியமனங்கள்',
+      privacy: 'தனியுரிமை',
+    },
+    account: {
+      editProfile: 'சுயவிவரத்தைத் திருத்து',
+      fullName: 'முழு பெயர்',
+      emailAddress: 'மின்னஞ்சல் முகவரி',
+      changePassword: 'கடவுச்சொல்லை மாற்று',
+      currentPassword: 'தற்போதைய கடவுச்சொல்',
+      newPassword: 'புதிய கடவுச்சொல்',
+      confirmNewPassword: 'புதிய கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+      leaveBlank: '(தற்போதையதை வைத்திருக்க காலியாக விடவும்)',
+      passwordsDontMatch: 'கடவுச்சொற்கள் பொருந்தவில்லை',
+      min8Chars: 'குறைந்தபட்சம் 8 எழுத்துக்கள்',
+      saving: 'சேமிக்கிறது...',
+      saveChanges: 'மாற்றங்களைச் சேமிக்கவும்',
+      googleAccount: 'Google கணக்கு',
+      emailAccount: 'மின்னஞ்சல் கணக்கு',
+    },
+    appointments: {
+      myAppointments: 'எனது நியமனங்கள்',
+      noAppointmentsYet: 'இதுவரை எந்த நியமனங்களும் இல்லை',
+      bookAnAppointment: 'எங்கள் நிபுணர்களில் ஒருவருடன் சந்திப்பை முன்பதிவு செய்யுங்கள், அது இங்கே தோன்றும்.',
+      findDoctor: 'ஒரு மருத்துவரைத் தேடுங்கள்',
+      doctor: 'மருத்துவர்',
+      completed: 'முடிந்தது',
+      confirmed: 'உறுதி செய்யப்பட்டது',
+    },
+    privacy: {
+      privacySettings: 'தனியுரிமை அமைப்புகள்',
+      saveUltrasound: 'அல்ட்ராசவுண்ட் ஸ்கேன் படங்களைச் சேமிக்கவும்',
+      controlData: 'OvaCare இல் உங்கள் சுகாதாரத் தரவு எவ்வாறு பயன்படுத்தப்படுகிறது மற்றும் சேமிக்கப்படுகிறது என்பதைக் கட்டுப்படுத்தவும்.',
+      allowStorage: 'AI துல்லியத்தை மேம்படுத்தவும், எதிர்கால ஸ்கேன் ஒப்பீடுகளை செயல்படுத்தவும் நீங்கள் பதிவேற்றிய அல்ட்ராசவுண்ட் படங்களை எங்கள் பாதுகாப்பான தரவுத்தளத்தில் சேமிக்க OvaCare ஐ அனுமதிக்கவும். இதை நீங்கள் எந்த நேரத்திலும் மாற்றலாம்.',
+      imagesWillBeSaved: '✓ படங்கள் சேமிக்கப்படும்',
+      imagesWillNotBeSaved: '✗ படங்கள் சேமிக்கப்படாது',
+      whatWeAlwaysStore: 'நாங்கள் எப்போதும் சேமிப்பது',
+      alwaysStoreName: 'உங்கள் பெயர் மற்றும் மின்னஞ்சல் முகவரி',
+      alwaysStoreAppt: 'சந்திப்பு முன்பதிவு விவரங்கள்',
+      alwaysStorePrefs: 'கணக்கு விருப்பத்தேர்வுகள் (இந்த அமைப்பு போன்றது)',
+      whatWeNeverStore: 'நாங்கள் ஒருபோதும் சேமிக்காதவை (நீங்கள் மேலே தேர்வுசெய்தால் ஒழிய)',
+      neverStoreScans: 'அல்ட்ராசவுண்ட் ஸ்கேன் படங்கள்',
+      neverStoreAI: 'AI பகுப்பாய்வு முடிவுகள்',
+    },
+  },
 
   education: {
     pageTitle: 'PCOS கல்வி மையம்',
@@ -390,7 +437,24 @@ export const taOverrides: Partial<TranslationResource> = {
       educationalVideos: 'கல்வி வீடியோக்கள்',
     },
     nutrition: {
-      dietPlans: 'PCOS-க்கு ஏற்ற உணவுத் திட்டங்கள்',
+      diets: [
+        {
+          name: 'அழற்சி எதிர்ப்பு இலங்கை உணவுமுறை',
+          description: 'அழற்சியைக் குறைக்கும் பாரம்பரிய உணவுகள்',
+          keyFoods: ['மஞ்சள்', 'வல்லாரை', 'மீன் குழம்பு', 'தேங்காய் எண்ணெய்'],
+        },
+        {
+          name: 'குறைந்த கிளைசெமிக் உள்ளூர் உணவுகள்',
+          description: 'நிலையான இரத்த சர்க்கரைக்கான இலங்கை உணவுகள்',
+          keyFoods: ['சிவப்பு அரிசி', 'பயறு', 'கொஹில', 'பலாக்காய்'],
+        },
+        {
+          name: 'பாரம்பரிய ஆயுர்வேதம்',
+          description: 'ஹார்மோன் சமநிலைக்கான காலத்தால் சோதிக்கப்பட்ட தீர்வுகள்',
+          keyFoods: ['வெந்தயம்', 'இலவங்கப்பட்டை', 'பாகற்காய்', 'முருங்கை'],
+        },
+      ],
+      dietPlans: 'PCOS-க்கு உகந்த உணவுத் திட்டங்கள்',
       mealPlans: 'PCOS உணவுத் திட்டங்கள்',
       mealPlansSubtitle: 'இலங்கை சுவைகளுக்கு ஏற்ப, ஹார்மோன்களை சமநிலைப்படுத்த உதவும் நடைமுறை தினசரி திட்டங்கள்.',
       generateMealPlanButton: 'PDF ஆக பதிவிறக்குக',
@@ -425,6 +489,29 @@ export const taOverrides: Partial<TranslationResource> = {
       ],
     },
     exercise: {
+      exerciseTypes: [
+        {
+          type: 'வலிமை பயிற்சி (Strength Training)',
+          icon: '💪',
+          benefits: ['தசை வளர்ச்சியை அதிகரிக்கிறது', 'வளர்சிதை மாற்றத்தை மேம்படுத்துகிறது', 'இன்சுலின் உணர்திறன்'],
+          examples: ['பளு தூக்குதல்', 'எதிர்ப்பு பட்டைகள் (Resistance bands)', 'உடல் எடை பயிற்சிகள்'],
+          frequency: 'வாரத்திற்கு 2-3 முறை',
+        },
+        {
+          type: 'கார்டியோ உடற்பயிற்சி (Cardio Exercise)',
+          icon: '🏃‍♀️',
+          benefits: ['இதய ஆரோக்கியம்', 'எடை மேலாண்மை', 'மனநிலை மேம்பாடு'],
+          examples: ['வேகமான நடைப்பயிற்சி', 'நீச்சல்', 'சைக்கிள் ஓட்டுதல்'],
+          frequency: 'வாரத்திற்கு 150 நிமிடம்',
+        },
+        {
+          type: 'HIIT பயிற்சி',
+          icon: '⚡',
+          benefits: ['நேர மிச்சம்', 'வளர்சிதை மாற்ற ஊக்கம்', 'ஹார்மோன் சமநிலை'],
+          examples: ['இடைவெளி ஓட்டம்', 'சுற்றுப் பயிற்சி (Circuit training)', 'தபாட்டா'],
+          frequency: 'வாரத்திற்கு 1-2 முறை',
+        },
+      ],
       title: 'PCOS-க்கான உடற்பயிற்சி',
       subtitle: 'ஹார்மோன் சமநிலைக்கான உடற்பயிற்சி வகைகள் மற்றும் நடைமுறைகள்',
       exerciseGuidelines: 'PCOS உடற்பயிற்சி வழிகாட்டுதல்கள்',

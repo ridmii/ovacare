@@ -1,9 +1,27 @@
 const express = require('express');
 const Booking = require('../models/Booking');
+const User = require('../models/User');
 const doctorsRouter = require('./doctors');
+
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const FLASK_API_URL = process.env.FLASK_API_URL || 'http://127.0.0.1:5001';
+const JWT_SECRET = process.env.JWT_SECRET || 'ovacare-dev-secret-change-in-production';
+
+function requireAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const decoded = jwt.verify(header.slice(7), JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
 
 function formatAppointmentDateForEmail(dateInput) {
   const d = parseAppointmentDate(dateInput);
@@ -63,6 +81,7 @@ router.post('/', async (req, res) => {
   try {
     const {
       doctorId,
+      userId,
       patientName,
       patientEmail,
       patientPhone,
@@ -103,6 +122,7 @@ router.post('/', async (req, res) => {
 
     const booking = await Booking.create({
       doctorId,
+      userId: userId || undefined,
       patientName: patientName.trim(),
       patientEmail: patientEmail.trim(),
       patientPhone: patientPhone.trim(),
@@ -154,6 +174,88 @@ router.get('/:id', async (req, res) => {
     }
     console.error('GET /api/bookings/:id error:', err);
     res.status(500).json({ error: 'Failed to fetch booking' });
+  }
+});
+
+router.patch('/:id', requireAuth, async (req, res) => {
+  try {
+    const { appointmentDate, timeSlot } = req.body;
+    
+    if (!appointmentDate || !timeSlot) {
+      return res.status(400).json({ error: 'appointmentDate and timeSlot are required' });
+    }
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const user = await User.findById(req.userId);
+    const userEmail = user ? user.email.toLowerCase() : null;
+    const isOwnerById = booking.userId && String(booking.userId) === String(req.userId);
+    const isOwnerByEmail = userEmail && booking.patientEmail.toLowerCase() === userEmail;
+
+    if (!isOwnerById && !isOwnerByEmail) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const parsedDate = parseAppointmentDate(appointmentDate);
+    if (!parsedDate) {
+      return res.status(400).json({ error: 'Invalid appointmentDate format' });
+    }
+
+    const dateStr =
+      typeof appointmentDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)
+        ? appointmentDate
+        : parsedDate.toISOString().slice(0, 10);
+
+    const slotCheck = await doctorsRouter.isSlotAvailable(booking.doctorId, dateStr, timeSlot.trim());
+    if (!slotCheck.ok) {
+      return res.status(slotCheck.status).json({ error: slotCheck.error });
+    }
+
+    booking.appointmentDate = parsedDate;
+    booking.timeSlot = timeSlot.trim();
+    await booking.save();
+
+    res.json({ success: true, booking });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'That time slot is already booked' });
+    }
+    console.error('PATCH /api/bookings/:id error:', err);
+    res.status(500).json({ error: 'Failed to update booking' });
+  }
+});
+
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const { reason } = req.body;
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const user = await User.findById(req.userId);
+    const userEmail = user ? user.email.toLowerCase() : null;
+    const isOwnerById = booking.userId && String(booking.userId) === String(req.userId);
+    const isOwnerByEmail = userEmail && booking.patientEmail.toLowerCase() === userEmail;
+
+    if (!isOwnerById && !isOwnerByEmail) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    booking.status = 'cancelled';
+    if (reason) {
+      booking.cancellationReason = reason.trim();
+    }
+    await booking.save();
+
+    res.json({ success: true, booking });
+  } catch (err) {
+    console.error('DELETE /api/bookings/:id error:', err);
+    res.status(500).json({ error: 'Failed to cancel booking' });
   }
 });
 

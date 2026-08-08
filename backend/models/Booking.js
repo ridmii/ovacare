@@ -7,6 +7,11 @@ const bookingSchema = new mongoose.Schema(
       ref: 'Doctor',
       required: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
+    },
     patientName: { type: String, required: true },
     patientEmail: { type: String, required: true },
     patientPhone: { type: String, required: true },
@@ -14,6 +19,7 @@ const bookingSchema = new mongoose.Schema(
     timeSlot: { type: String, required: true },
     reasonForVisit: { type: String, required: true },
     status: { type: String, default: 'confirmed' },
+    cancellationReason: { type: String },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: false }

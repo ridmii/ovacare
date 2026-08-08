@@ -14,6 +14,7 @@ import {
   BarChart3,
   Clock,
   Loader2,
+  Search,
 } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 
@@ -33,6 +34,8 @@ interface ScanResults {
   diagnosis: string
   severity: string
   follicleCount: number
+  avgFollicleSize?: number
+  follicleDistribution?: string
   recommendations: string[]
   visualization?: {
     layerName?: string
@@ -119,6 +122,8 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
           diagnosis: data.analysis.diagnosis,
           severity: data.analysis.severity,
           follicleCount: data.analysis.follicleCount,
+          avgFollicleSize: data.analysis.avgFollicleSize,
+          follicleDistribution: data.analysis.follicleDistribution,
           visualization: data.analysis.visualization || null,
           recommendations: data.analysis.recommendations || [
             'Consult with a specialist for further evaluation',
@@ -127,10 +132,13 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             'Regular monitoring as recommended by doctor',
           ],
           technicalDetails: {
-            follicleSize: data.analysis.follicleCount > 12 ? '2-9mm (multiple)' : '5-12mm (normal)',
+            follicleSize: data.analysis.avgFollicleSize
+              ? `~${data.analysis.avgFollicleSize} mm avg diameter`
+              : data.analysis.follicleCount > 12 ? '2-9mm (multiple)' : '5-12mm (normal)',
             ovarianVolume: 'Estimated from ultrasound analysis',
-            morphology: data.analysis.diagnosis.includes('PCOS') ? 'Polycystic pattern detected' : 'Normal ovarian structure',
-            modelUsed: 'EfficientNetB4 (20M+ parameters)',
+            morphology: data.analysis.follicleDistribution
+              || (data.analysis.diagnosis.includes('PCOS') ? 'Polycystic pattern detected' : 'Normal ovarian structure'),
+            modelUsed: 'EfficientNetB4 + OpenCV Contour Detection',
           },
         }
 
@@ -229,7 +237,8 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
         >
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-ovacare-navy mb-4 flex items-center justify-center gap-3">
+              <CheckCircle className="w-8 h-8 text-green-500" />
               Analysis Complete
             </h1>
             <p className="text-lg text-ovacare-gray">
@@ -287,20 +296,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                   Grad-CAM layer: {results.visualization.layerName}
                 </div>
               )}
-              <div className="flex gap-2">
-                <GradientButton
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => window.open(results.visualization?.overlayImageDataUrl || preview || '', '_blank')}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Explanation
-                </GradientButton>
-                <GradientButton variant="outline" size="sm">
-                  <Download className="w-4 h-4" />
-                </GradientButton>
-              </div>
+
             </GlassCard>
 
             {/* Main Results */}
@@ -459,8 +455,8 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
               <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full border-4 border-ovacare-purple/20 animate-ping" />
             </div>
             
-            <h2 className="text-2xl font-bold text-ovacare-navy mb-4">
-              {t('scan.analyzeButton')} 🔍
+            <h2 className="text-2xl font-bold text-ovacare-navy mb-4 flex items-center justify-center gap-2">
+              {t('scan.analyzeButton')} <Search className="w-6 h-6 text-ovacare-purple" />
             </h2>
             <p className="text-ovacare-gray mb-8">
               {t('scan.analyzingSubtitle')}
@@ -613,18 +609,6 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                     </p>
                   </div>
 
-                  <div className="p-4 bg-gray-50 rounded-lg opacity-60">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
-                      <span className="font-medium">{t('scan.analysisOptions.advanced.name')}</span>
-                      <span className="text-xs bg-ovacare-purple text-white px-2 py-1 rounded">
-                        {t('scan.analysisOptions.advanced.badge')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 pl-8">
-                      {t('scan.analysisOptions.advanced.description')}
-                    </p>
-                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -636,10 +620,7 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
                     <Brain className="w-5 h-5 mr-2" />
                     {t('scan.analysisOptions.startAnalysis')}
                   </GradientButton>
-                  
-                  <button className="w-full p-3 text-ovacare-purple border border-ovacare-purple/20 rounded-lg hover:bg-ovacare-purple/5 transition-colors">
-                    {t('scan.analysisOptions.saveForLater')}
-                  </button>
+
                 </div>
               </GlassCard>
             </div>
