@@ -110,11 +110,10 @@ def is_ultrasound_image(filepath: str) -> bool:
         score = 0
 
         # ── HARD FAIL 0: ImageNet object detection ───────────────────────────
-        # Run before any pixel heuristics. If MobileNetV2 confidently
-        # recognises any ImageNet class the image is a real-world photo.
-        if _is_everyday_object(filepath):
-            print('[UltrasoundCheck] HARD FAIL — ImageNet recognised a real-world object.')
-            return False
+        # Disabled for Render Free Tier to prevent Out Of Memory (OOM) crashes.
+        # if _is_everyday_object(filepath):
+        #     print('[UltrasoundCheck] HARD FAIL — ImageNet recognised a real-world object.')
+        #     return False
 
         # ── HARD FAIL: Colour check ──────────────────────────────────────────
         # Ultrasounds are essentially grayscale. If the image is clearly
