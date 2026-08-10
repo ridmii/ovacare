@@ -157,6 +157,19 @@ def get_doctors():
         return jsonify({'error': 'Internal server error'}), 500
 
 
+@api_bp.route('/doctors/<int:doctor_id>', methods=['GET'])
+def get_doctor(doctor_id):
+    """Get details for a specific doctor by ID."""
+    try:
+        doctor = find_doctor_by_id(doctor_id)
+        if not doctor:
+            return jsonify({'error': 'Doctor not found'}), 404
+        return jsonify(doctor), 200
+    except Exception as e:
+        current_app.logger.error(f"Doctor details error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+
 @api_bp.route('/bookings', methods=['GET'])
 def get_bookings():
     """List bookings (demo/dev)."""
