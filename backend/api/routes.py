@@ -213,26 +213,39 @@ def create_booking_endpoint():
             'phone': data.get('patientPhone', '')
         }
 
-        # Mock the booking creation instead of using booking_store which relies on MongoDB
-        # This prevents 500 timeouts on Render when MONGODB_URI is not set.
-        import uuid
-        from datetime import datetime, timezone
+        # Create booking in MongoDB
+        booking = create_booking(
+            doctor_id=int(doctor_id),
+            appointment_type=appointment_type,
+            requested_slot=requested_slot,
+            patient=patient,
+        )
         
-        booking_id = str(uuid.uuid4())
-        booking = {
-            "id": booking_id,
-            "doctorId": int(doctor_id),
-            "appointmentType": appointment_type,
-            "requestedSlot": requested_slot,
-            "patient": patient,
-            "status": "confirmed",
-            "createdAt": datetime.now(timezone.utc).isoformat(),
-        }
+        patient_email = patient.get('email')
+        email_confirmation = False
+        if patient_email:
+            try:
+                from services.email_service import send_email
+                doctor_name = doctor.get('name')
+                subject = f"Booking Confirmation: {doctor_name}"
+                body = f"Hello {patient.get('name')},\n\nYour appointment with {doctor_name} is confirmed for {requested_slot}.\n\nThank you for choosing Ovacare."
+                html_body = f\"\"\"
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                    <h2 style="color: #d63384;">Booking Confirmed</h2>
+                    <p>Hello {patient.get('name')},</p>
+                    <p>Your appointment with <strong>{doctor_name}</strong> is confirmed for <strong>{requested_slot}</strong>.</p>
+                    <p>Thank you for choosing Ovacare.</p>
+                </div>
+                \"\"\"
+                send_email(to_email=patient_email, subject=subject, body=body, html_body=html_body)
+                email_confirmation = True
+            except Exception as e:
+                current_app.logger.error(f"Failed to send confirmation email: {e}")
 
         return jsonify({
             'success': True,
-            'bookingId': booking_id,  # The React frontend requires this specific field to navigate to the confirmation page
-            'emailConfirmation': True,
+            'bookingId': booking.get('id'),
+            'emailConfirmation': email_confirmation,
             'booking': booking,
             'doctor': {
                 'id': doctor.get('id'),
