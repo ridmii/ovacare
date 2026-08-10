@@ -98,7 +98,10 @@ def create_app():
     
     return app
 
+# Create the app at module level so gunicorn can find it (required for production).
+# gunicorn app:app  →  imports this module and looks for `app`
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     flask_port = int(os.getenv('FLASK_PORT', '5001'))
     app.run(debug=True, host='0.0.0.0', port=flask_port)
