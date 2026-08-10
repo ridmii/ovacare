@@ -229,14 +229,14 @@ def create_booking_endpoint():
                 doctor_name = doctor.get('name')
                 subject = f"Booking Confirmation: {doctor_name}"
                 body = f"Hello {patient.get('name')},\n\nYour appointment with {doctor_name} is confirmed for {requested_slot}.\n\nThank you for choosing Ovacare."
-                html_body = f\"\"\"
+                html_body = f"""
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
                     <h2 style="color: #d63384;">Booking Confirmed</h2>
                     <p>Hello {patient.get('name')},</p>
                     <p>Your appointment with <strong>{doctor_name}</strong> is confirmed for <strong>{requested_slot}</strong>.</p>
                     <p>Thank you for choosing Ovacare.</p>
                 </div>
-                \"\"\"
+                """
                 send_email(to_email=patient_email, subject=subject, body=body, html_body=html_body)
                 email_confirmation = True
             except Exception as e:
