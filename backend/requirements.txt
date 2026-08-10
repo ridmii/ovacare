@@ -8,3 +8,4 @@ gunicorn>=21.2.0
 pymongo>=4.5.0
 tensorflow>=2.13.0
 opencv-python-headless>=4.8.0
+huggingface_hub>=0.20.0

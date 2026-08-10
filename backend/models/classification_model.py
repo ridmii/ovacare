@@ -14,6 +14,36 @@ _loaded_model = None
 _loaded_explainer = None
 CLASSIFICATION_THRESHOLD = 0.7
 
+def _download_model_from_hf(model_path: Path) -> bool:
+    """
+    Try to download the PCOS model from Hugging Face Hub.
+    Requires the HF_MODEL_REPO env var to be set, e.g. 'ridmii/ovacare-model'.
+    Returns True if the download succeeded, False otherwise.
+    """
+    hf_repo = os.getenv('HF_MODEL_REPO', '').strip()
+    if not hf_repo:
+        return False
+    try:
+        from huggingface_hub import hf_hub_download  # type: ignore
+        print(f"[ModelLoader] Downloading model from HF Hub: {hf_repo} ...")
+        model_path.parent.mkdir(parents=True, exist_ok=True)
+        downloaded = hf_hub_download(
+            repo_id=hf_repo,
+            filename='best_model_phase3.h5',
+            local_dir=str(model_path.parent),
+        )
+        # hf_hub_download may place the file in a cache subdir — copy if needed
+        downloaded_path = Path(downloaded)
+        if downloaded_path != model_path:
+            import shutil
+            shutil.copy(downloaded_path, model_path)
+        print(f"[ModelLoader] Model downloaded to: {model_path}")
+        return True
+    except Exception as exc:
+        print(f"[ModelLoader] HF Hub download failed: {exc}")
+        return False
+
+
 def load_classification_model():
     """Load or mock the trained PCOS classification model."""
     global _loaded_model
@@ -21,6 +51,12 @@ def load_classification_model():
     if _loaded_model is None:
         try:
             model_path = Path(MODEL_PATH)
+
+            # If the model file is missing, attempt to fetch it from HF Hub
+            # (used in cloud deployments where .h5 files are not in git).
+            if not model_path.exists():
+                _download_model_from_hf(model_path)
+
             if not model_path.exists():
                 # Use a mock model for development
                 print(f"Model not found at: {model_path}")
@@ -52,6 +88,7 @@ def load_classification_model():
             return _loaded_model
     
     return _loaded_model
+
 
 
 def load_gradcam_explainer() -> Optional[GradCAMExplainer]:
