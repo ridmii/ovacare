@@ -6,8 +6,8 @@ import random
 
 from .gradcam_utils import GradCAMExplainer
 
-# Path to the trained PCOS model
-MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'pcod_training', 'outputs', 'checkpoints', 'best_model_phase3.h5')
+# Path to the trained PCOS model (TFLite version for lower memory footprint)
+MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'pcod_training', 'outputs', 'checkpoints', 'best_model_phase3.tflite')
 
 # Global variable to store loaded model
 _loaded_model = None
@@ -29,7 +29,7 @@ def _download_model_from_hf(model_path: Path) -> bool:
         model_path.parent.mkdir(parents=True, exist_ok=True)
         downloaded = hf_hub_download(
             repo_id=hf_repo,
-            filename='best_model_phase3.h5',
+            filename='best_model_phase3.tflite',
             local_dir=str(model_path.parent),
         )
         # hf_hub_download may place the file in a cache subdir — copy if needed
@@ -64,17 +64,14 @@ def load_classification_model():
                 _loaded_model = "mock_model"
                 return _loaded_model
             else:
-                # Will load tensorflow model if available
+                # Will load tflite model if available
                 try:
                     import tensorflow as tf
-                    print(f"Loading PCOS classification model from: {model_path}")
-                    _loaded_model = tf.keras.models.load_model(str(model_path), compile=False)
-                    _loaded_model.compile(
-                        optimizer='adam',
-                        loss='binary_crossentropy',
-                        metrics=['accuracy']
-                    )
-                    print("PCOS model loaded successfully!")
+                    print(f"Loading PCOS TFLite model from: {model_path}")
+                    # Load the TFLite model and allocate tensors
+                    _loaded_model = tf.lite.Interpreter(model_path=str(model_path))
+                    _loaded_model.allocate_tensors()
+                    print("PCOS TFLite model loaded successfully!")
                     return _loaded_model
                 except ImportError:
                     print("TensorFlow not available - using mock model")
@@ -92,22 +89,8 @@ def load_classification_model():
 
 
 def load_gradcam_explainer() -> Optional[GradCAMExplainer]:
-    """Load a Grad-CAM explainer bound to the trained classification model."""
-    global _loaded_explainer
-
-    if _loaded_explainer is not None:
-        return _loaded_explainer
-
-    model = load_classification_model()
-    if model is None or model == "mock_model":
-        return None
-
-    try:
-        _loaded_explainer = GradCAMExplainer(model)
-        return _loaded_explainer
-    except Exception as exc:
-        print(f"⚠️ Unable to initialize Grad-CAM explainer: {exc}")
-        return None
+    """Load a Grad-CAM explainer (Disabled for TFLite since it lacks gradients)."""
+    return None
 
 def classify_ultrasound(image: np.ndarray, original_image_path: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -129,8 +112,18 @@ def classify_ultrasound(image: np.ndarray, original_image_path: Optional[str] = 
         
         print(f"Input image shape: {image.shape}")
         
-        # Make prediction
-        prediction = model.predict(image, verbose=0)
+        # Make prediction using TFLite
+        input_details = model.get_input_details()
+        output_details = model.get_output_details()
+        
+        # Ensure image is float32
+        input_data = image.astype(np.float32)
+        model.set_tensor(input_details[0]['index'], input_data)
+        
+        # Run inference
+        model.invoke()
+        
+        prediction = model.get_tensor(output_details[0]['index'])
         pred_value = float(prediction[0][0])
         
         # Convert to classification result
