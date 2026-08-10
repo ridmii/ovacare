@@ -15,8 +15,19 @@ def initialize_models():
         print("Initializing AI models...")
         print("✓ Classification model loaded")
         print("✓ Segmentation model loaded")
+
+        # Pre-warm the MobileNetV2 object-detection model so the first upload
+        # doesn't pay the one-time weight-loading cost.
+        try:
+            from utils.image_processor import _load_imagenet_model
+            _load_imagenet_model()
+            print("✓ MobileNetV2 object-detection model pre-loaded")
+        except Exception as mobilenet_err:
+            print(f"⚠️ MobileNetV2 pre-load skipped: {mobilenet_err}")
+
     except Exception as e:
         print(f"Error initializing models: {e}")
+
 
 def generate_recommendations(classification_result: Dict[Any, Any], segmentation_result: Dict[Any, Any]) -> List[str]:
     """Generate recommendations based on analysis results."""

@@ -379,204 +379,204 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
     return (
       <AnimatePresence>
         {activeForm && (
-        <motion.div
-          key="modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-        >
           <motion.div
-            key="modal-content"
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-lg"
+            key="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
-            <GlassCard className="w-full p-6 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-bold text-ovacare-navy">
-                {isSpecialist
-                  ? t('doctors.forms.specialistMatch.title')
-                  : t('doctors.forms.providerNetwork.title')}
-              </h3>
-              <p className="text-sm text-ovacare-gray mt-1">
-                {isSpecialist
-                  ? t('doctors.forms.specialistMatch.subtitle')
-                  : t('doctors.forms.providerNetwork.subtitle')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={closeForm}
-              className="text-ovacare-gray hover:text-ovacare-navy"
-              aria-label={t('common.close')}
+            <motion.div
+              key="modal-content"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="w-full max-w-lg"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+              <GlassCard className="w-full p-6 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-ovacare-navy">
+                      {isSpecialist
+                        ? t('doctors.forms.specialistMatch.title')
+                        : t('doctors.forms.providerNetwork.title')}
+                    </h3>
+                    <p className="text-sm text-ovacare-gray mt-1">
+                      {isSpecialist
+                        ? t('doctors.forms.specialistMatch.subtitle')
+                        : t('doctors.forms.providerNetwork.subtitle')}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeForm}
+                    className="text-ovacare-gray hover:text-ovacare-navy"
+                    aria-label={t('common.close')}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-          {formMessage ? (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
-              {formMessage}
-            </div>
-          ) : (
-            <form onSubmit={isSpecialist ? submitSpecialistMatch : submitProviderApplication} className="space-y-4">
-              {isSpecialist ? (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.yourName')}
-                    </label>
-                    <input
-                      type="text"
-                      value={specialistForm.submitterName}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, submitterName: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
+                {formMessage ? (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
+                    {formMessage}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.yourEmail')}
-                    </label>
-                    <input
-                      type="email"
-                      value={specialistForm.submitterEmail}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, submitterEmail: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.doctorName')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={specialistForm.doctorName}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, doctorName: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.specialty')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={specialistForm.specialty}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, specialty: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.location')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={specialistForm.location}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, location: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.specialistMatch.details')}
-                    </label>
-                    <textarea
-                      rows={4}
-                      value={specialistForm.details}
-                      onChange={(e) => setSpecialistForm({ ...specialistForm, details: e.target.value })}
-                      placeholder={t('doctors.forms.specialistMatch.detailsPlaceholder')}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.providerNetwork.name')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={providerForm.name}
-                      onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.providerNetwork.specialty')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={providerForm.specialty}
-                      onChange={(e) => setProviderForm({ ...providerForm, specialty: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.providerNetwork.description')} *
-                    </label>
-                    <textarea
-                      rows={4}
-                      required
-                      value={providerForm.description}
-                      onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
-                      placeholder={t('doctors.forms.providerNetwork.descriptionPlaceholder')}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.providerNetwork.email')}
-                    </label>
-                    <input
-                      type="email"
-                      value={providerForm.email}
-                      onChange={(e) => setProviderForm({ ...providerForm, email: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-ovacare-navy mb-1">
-                      {t('doctors.forms.providerNetwork.phone')}
-                    </label>
-                    <input
-                      type="tel"
-                      value={providerForm.phone}
-                      onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
-                    />
-                  </div>
-                </>
-              )}
+                ) : (
+                  <form onSubmit={isSpecialist ? submitSpecialistMatch : submitProviderApplication} className="space-y-4">
+                    {isSpecialist ? (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.yourName')}
+                          </label>
+                          <input
+                            type="text"
+                            value={specialistForm.submitterName}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, submitterName: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.yourEmail')}
+                          </label>
+                          <input
+                            type="email"
+                            value={specialistForm.submitterEmail}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, submitterEmail: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.doctorName')} *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={specialistForm.doctorName}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, doctorName: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.specialty')} *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={specialistForm.specialty}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, specialty: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.location')} *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={specialistForm.location}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, location: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.specialistMatch.details')}
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={specialistForm.details}
+                            onChange={(e) => setSpecialistForm({ ...specialistForm, details: e.target.value })}
+                            placeholder={t('doctors.forms.specialistMatch.detailsPlaceholder')}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.providerNetwork.name')} *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={providerForm.name}
+                            onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.providerNetwork.specialty')} *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={providerForm.specialty}
+                            onChange={(e) => setProviderForm({ ...providerForm, specialty: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.providerNetwork.description')} *
+                          </label>
+                          <textarea
+                            rows={4}
+                            required
+                            value={providerForm.description}
+                            onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                            placeholder={t('doctors.forms.providerNetwork.descriptionPlaceholder')}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.providerNetwork.email')}
+                          </label>
+                          <input
+                            type="email"
+                            value={providerForm.email}
+                            onChange={(e) => setProviderForm({ ...providerForm, email: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-ovacare-navy mb-1">
+                            {t('doctors.forms.providerNetwork.phone')}
+                          </label>
+                          <input
+                            type="tel"
+                            value={providerForm.phone}
+                            onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })}
+                            className="w-full px-4 py-2.5 bg-white/50 border border-gray-200 rounded-lg focus:outline-none focus:border-ovacare-purple"
+                          />
+                        </div>
+                      </>
+                    )}
 
-              {formError && (
-                <p className="text-sm text-red-600">{formError}</p>
-              )}
+                    {formError && (
+                      <p className="text-sm text-red-600">{formError}</p>
+                    )}
 
-              <GradientButton type="submit" size="lg" className="w-full" disabled={formSubmitting}>
-                {formSubmitting
-                  ? t('common.loading')
-                  : isSpecialist
-                    ? t('doctors.forms.specialistMatch.submit')
-                    : t('doctors.forms.providerNetwork.submit')}
-              </GradientButton>
-            </form>
-          )}
-            </GlassCard>
+                    <GradientButton type="submit" size="lg" className="w-full" disabled={formSubmitting}>
+                      {formSubmitting
+                        ? t('common.loading')
+                        : isSpecialist
+                          ? t('doctors.forms.specialistMatch.submit')
+                          : t('doctors.forms.providerNetwork.submit')}
+                    </GradientButton>
+                  </form>
+                )}
+              </GlassCard>
+            </motion.div>
           </motion.div>
-        </motion.div>
         )}
       </AnimatePresence>
     )
@@ -660,11 +660,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
                     <button
                       type="button"
                       onClick={() => setBookingType('video')}
-                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                        bookingType === 'video'
-                          ? 'border-ovacare-purple bg-ovacare-purple/10 text-ovacare-purple'
-                          : 'border-gray-200 text-ovacare-gray hover:border-ovacare-purple/40 hover:text-ovacare-navy'
-                      }`}
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${bookingType === 'video'
+                        ? 'border-ovacare-purple bg-ovacare-purple/10 text-ovacare-purple'
+                        : 'border-gray-200 text-ovacare-gray hover:border-ovacare-purple/40 hover:text-ovacare-navy'
+                        }`}
                     >
                       <Video className="w-4 h-4 shrink-0" />
                       {t('doctors.booking.videoConsultation')}
@@ -672,11 +671,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
                     <button
                       type="button"
                       onClick={() => setBookingType('in_person')}
-                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                        bookingType === 'in_person'
-                          ? 'border-ovacare-purple bg-ovacare-purple/10 text-ovacare-purple'
-                          : 'border-gray-200 text-ovacare-gray hover:border-ovacare-purple/40 hover:text-ovacare-navy'
-                      }`}
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${bookingType === 'in_person'
+                        ? 'border-ovacare-purple bg-ovacare-purple/10 text-ovacare-purple'
+                        : 'border-gray-200 text-ovacare-gray hover:border-ovacare-purple/40 hover:text-ovacare-navy'
+                        }`}
                     >
                       <MapPin className="w-4 h-4 shrink-0" />
                       {t('doctors.booking.inPersonAppointment')}
@@ -734,6 +732,12 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
           <p className="text-lg text-ovacare-gray max-w-2xl mx-auto">
             {t('doctors.pageSubtitle')}
           </p>
+        </div>
+
+        {/* Warning Banner */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-8 text-amber-800 text-sm text-center">
+          <strong>Note:</strong>This website was developed as part of my Undergraduate Research Project. The doctor availability, dates, and appointment times shown are mocked for research and demonstration purposes and will be updated in a future version. However, the doctor details are accurate and can be verified through Doc990, where you can also search for the doctors and make bookings.
+
         </div>
 
         {/* Search & Filters */}
@@ -794,11 +798,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
             <button
               key={specialty.id}
               onClick={() => setSelectedSpecialty(specialty.id)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
-                selectedSpecialty === specialty.id
-                  ? 'bg-gradient-to-r from-ovacare-purple to-ovacare-deep text-white shadow-lg'
-                  : 'bg-white/50 text-ovacare-navy hover:bg-white/70 border border-gray-200'
-              }`}
+              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${selectedSpecialty === specialty.id
+                ? 'bg-gradient-to-r from-ovacare-purple to-ovacare-deep text-white shadow-lg'
+                : 'bg-white/50 text-ovacare-navy hover:bg-white/70 border border-gray-200'
+                }`}
             >
               <specialty.icon className="w-4 h-4" />
               {specialty.label}
@@ -822,11 +825,10 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
               <button
                 type="button"
                 onClick={() => setShowMoreFilters((prev) => !prev)}
-                className={`flex items-center gap-2 transition-colors ${
-                  showMoreFilters || activeFilterCount > 0
-                    ? 'text-ovacare-deep font-medium'
-                    : 'text-ovacare-purple hover:text-ovacare-deep'
-                }`}
+                className={`flex items-center gap-2 transition-colors ${showMoreFilters || activeFilterCount > 0
+                  ? 'text-ovacare-deep font-medium'
+                  : 'text-ovacare-purple hover:text-ovacare-deep'
+                  }`}
               >
                 <Filter className="w-4 h-4" />
                 {t('doctors.list.moreFilters')}
@@ -898,8 +900,8 @@ export function DoctorsPage({ setActivePage }: DoctorsPageProps) {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: i * 0.05, duration: 0.5 }}
               >
-                <GlassCard className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" 
-                           onClick={() => openDoctorProfile(doctor)}>
+                <GlassCard className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  onClick={() => openDoctorProfile(doctor)}>
                   <div className="flex items-start gap-4">
                     {/* Avatar */}
                     <div className="w-16 h-16 rounded-full bg-gradient-to-r from-ovacare-purple to-ovacare-pink flex items-center justify-center text-2xl">

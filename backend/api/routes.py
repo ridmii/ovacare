@@ -7,7 +7,7 @@ from PIL import Image
 import numpy as np
 from models.classification_model import classify_ultrasound
 from models.segmentation_model import segment_follicles
-from utils.image_processor import preprocess_image, validate_image
+from utils.image_processor import preprocess_image, validate_image, is_ultrasound_image
 from utils.helpers import allowed_file, generate_recommendations
 # from services.mongodb_service import mongodb_service  # Temporarily disabled until deps are fixed
 from services.doctors_catalog import get_doctors_catalog, find_doctor_by_id
@@ -57,6 +57,11 @@ def upload_scan():
         if not validate_image(filepath):
             os.remove(filepath)
             return jsonify({'error': 'Invalid or corrupted image file'}), 400
+            
+        # Check if it's a real ultrasound image
+        if not is_ultrasound_image(filepath):
+            os.remove(filepath)
+            return jsonify({'error': 'for smoother detection, upload a real ultrasound image'}), 400
         
         # MongoDB Atlas integration (ready for production deployment)
         # Images will be stored permanently once dependencies are resolved

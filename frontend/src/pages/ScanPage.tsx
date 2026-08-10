@@ -86,6 +86,8 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       setUploadedFile(file)
+      setActionError(null)
+      setActionMessage(null)
       const reader = new FileReader()
       reader.onload = (e) => setPreview(e.target?.result as string)
       reader.readAsDataURL(file)
@@ -148,29 +150,9 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
       }
     } catch (error) {
       console.error('Analysis error:', error)
-      
-      // Fallback error results
-      const errorResults = {
-        confidence: 0,
-        diagnosis: 'Analysis Failed',
-        severity: 'Unknown',
-        follicleCount: 0,
-        visualization: null,
-        recommendations: [
-          'Analysis could not be completed',
-          'Please try again with a clear ultrasound image',
-          'Ensure the image format is supported (JPG, PNG)',
-          'Contact support if the issue persists',
-        ],
-        technicalDetails: {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          follicleSize: 'N/A',
-          ovarianVolume: 'N/A',
-          morphology: 'Analysis incomplete',
-        },
-      }
-
-      setResults(errorResults)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      setActionError(`Analysis failed: ${errorMessage}. Please try again with a clearer ultrasound image or contact support if the issue persists.`)
+      setResults(null)
     } finally {
       setAnalyzing(false)
     }
@@ -513,6 +495,20 @@ export function ScanPage({ setActivePage }: ScanPageProps) {
             {t('scan.pageSubtitle')}
           </p>
         </div>
+
+        {(actionMessage || actionError) && (
+          <div
+            className={`mb-8 rounded-lg px-4 py-3 text-sm flex items-center gap-2 ${
+              actionError
+                ? 'bg-red-50 text-red-700 border border-red-200'
+                : 'bg-green-50 text-green-700 border border-green-200'
+            }`}
+          >
+            {actionError && <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+            {!actionError && <CheckCircle className="w-5 h-5 flex-shrink-0" />}
+            <span>{actionError || actionMessage}</span>
+          </div>
+        )}
 
         <div className="space-y-8">
           {/* Upload Area */}
