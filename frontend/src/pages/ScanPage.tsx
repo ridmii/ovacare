@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
 
-const FLASK_API = process.env.REACT_APP_FLASK_API || 'http://127.0.0.1:5001'
+const FLASK_API = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001'
 import { GradientButton } from '../components/GradientButton'
 import {
   downloadScanReportPdf,
