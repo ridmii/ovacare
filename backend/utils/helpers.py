@@ -9,24 +9,10 @@ def allowed_file(filename: str) -> bool:
 
 def initialize_models():
     """Initialize and load ML models."""
-    try:
-        # Initialize models here
-        # This would load your trained models
-        print("Initializing AI models...")
-        print("✓ Classification model loaded")
-        print("✓ Segmentation model loaded")
-
-        # Pre-warm the MobileNetV2 object-detection model so the first upload
-        # doesn't pay the one-time weight-loading cost.
-        try:
-            from utils.image_processor import _load_imagenet_model
-            _load_imagenet_model()
-            print("✓ MobileNetV2 object-detection model pre-loaded")
-        except Exception as mobilenet_err:
-            print(f"⚠️ MobileNetV2 pre-load skipped: {mobilenet_err}")
-
-    except Exception as e:
-        print(f"Error initializing models: {e}")
+    # NOTE: Models are NOT pre-loaded here to keep startup memory low.
+    # Render's free tier has 512 MB RAM; TensorFlow alone needs ~400 MB.
+    # Models load lazily on the first classify_ultrasound() / segment_follicles() call.
+    print("AI models will load lazily on first scan upload (Render free-tier memory optimisation).")
 
 
 def generate_recommendations(classification_result: Dict[Any, Any], segmentation_result: Dict[Any, Any]) -> List[str]:

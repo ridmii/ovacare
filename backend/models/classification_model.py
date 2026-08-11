@@ -195,6 +195,6 @@ def _mock_classification() -> Dict[str, Any]:
         'visualization': None,
     }
 
-# Initialize model on import
-print("Initializing PCOS classification model...")
-load_classification_model()
+# NOTE: Model is loaded lazily on first classify_ultrasound() call.
+# Do NOT call load_classification_model() here — TensorFlow uses ~400 MB of
+# RAM which exceeds Render's free-tier limit if loaded at startup.
