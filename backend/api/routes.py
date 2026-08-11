@@ -164,9 +164,39 @@ def get_doctor(doctor_id):
         doctor = find_doctor_by_id(doctor_id)
         if not doctor:
             return jsonify({'error': 'Doctor not found'}), 404
-        return jsonify(doctor), 200
+
+        # Enrich with fields expected by the frontend Booking.tsx:
+        # - _id: frontend uses _id (Mongo style) but catalog has integer id
+        # - hospital: catalog doesn't have a separate hospital field; derive from location
+        # - availableSlots: frontend expects [{date, slots[]}] for the next 14 days
+        from datetime import date, timedelta
+        enriched = dict(doctor)
+        enriched['_id'] = str(doctor['id'])
+
+        # Derive hospital name from officeHours/location if not present
+        if 'hospital' not in enriched:
+            # Use the location field as a proxy — good enough for display
+            enriched['hospital'] = enriched.get('location', '')
+
+        # Generate 14-day available slots (Mon-Sat, skip Sun)
+        standard_slots = [
+            '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+            '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM',
+        ]
+        available_slots = []
+        today = date.today()
+        for i in range(1, 15):
+            day = today + timedelta(days=i)
+            if day.weekday() != 6:  # skip Sunday
+                available_slots.append({
+                    'date': day.isoformat(),
+                    'slots': standard_slots,
+                })
+        enriched['availableSlots'] = available_slots
+
+        return jsonify(enriched), 200
     except Exception as e:
-        current_app.logger.error(f"Doctor details error: {str(e)}")
+        current_app.logger.error(f"Doctor details error: {str(e)}", exc_info=True)
         return jsonify({'error': 'Internal server error'}), 500
 
 
