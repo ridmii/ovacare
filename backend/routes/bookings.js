@@ -115,7 +115,14 @@ router.post('/', async (req, res) => {
         ? appointmentDate
         : parsedDate.toISOString().slice(0, 10);
 
-    const slotCheck = await doctorsRouter.isSlotAvailable(doctorId, dateStr, timeSlot.trim());
+    let slotCheck;
+    try {
+      slotCheck = await doctorsRouter.isSlotAvailable(doctorId, dateStr, timeSlot.trim());
+    } catch (slotErr) {
+      console.error('POST /api/bookings – slot availability check failed:', slotErr.message, slotErr.stack);
+      return res.status(500).json({ error: 'Failed to check slot availability. Please try again.' });
+    }
+
     if (!slotCheck.ok) {
       return res.status(slotCheck.status).json({ error: slotCheck.error });
     }
@@ -148,7 +155,8 @@ router.post('/', async (req, res) => {
     if (err.code === 11000) {
       return res.status(409).json({ error: 'That time slot is already booked' });
     }
-    console.error('POST /api/bookings error:', err);
+    console.error('POST /api/bookings error:', err.message);
+    console.error('Stack:', err.stack);
     res.status(500).json({ error: 'Failed to create booking' });
   }
 });

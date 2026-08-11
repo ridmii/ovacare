@@ -195,52 +195,89 @@ def create_booking_endpoint():
         data = request.get_json(silent=True) or {}
         current_app.logger.info(f"Received booking payload: {data}")
 
-        doctor_id = data.get('doctorId')
-        if doctor_id is None:
+        doctor_id_raw = data.get('doctorId')
+        if doctor_id_raw is None:
             return jsonify({'error': 'doctorId is required'}), 400
 
-        doctor = find_doctor_by_id(int(doctor_id))
+        # doctorId may arrive as an integer, a numeric string, or a MongoDB ObjectId string.
+        # The Flask catalog uses sequential integer IDs (1, 2, 3 …).
+        try:
+            doctor_id = int(doctor_id_raw)
+        except (TypeError, ValueError):
+            current_app.logger.error(
+                f"Invalid doctorId received: {doctor_id_raw!r} — "
+                "frontend may be sending a MongoDB ObjectId instead of the catalog integer ID"
+            )
+            return jsonify({
+                'error': f"Invalid doctorId '{doctor_id_raw}'. Expected a numeric catalog ID (1, 2, 3 …)."
+            }), 400
+
+        doctor = find_doctor_by_id(doctor_id)
         if not doctor:
+            current_app.logger.error(f"Doctor not found for id={doctor_id}")
             return jsonify({'error': 'Doctor not found'}), 404
 
-        # The frontend sends: patientName, patientEmail, patientPhone, appointmentDate, timeSlot
-        appointment_type = (data.get('appointmentType') or 'video').strip()
-        requested_slot = data.get('timeSlot') or doctor.get('nextAvailable')
-        
+        # appointmentType defaults to 'in_person' since the booking form is for clinic visits.
+        # booking_store accepts 'video' or 'in_person'.
+        raw_type = (data.get('appointmentType') or 'in_person').strip().lower()
+        appointment_type = raw_type if raw_type in {'video', 'in_person'} else 'in_person'
+
+        # Accept appointmentDate + timeSlot from the frontend booking form.
+        appointment_date = data.get('appointmentDate') or ''
+        time_slot = data.get('timeSlot') or ''
+        if appointment_date and time_slot:
+            requested_slot = f"{appointment_date} {time_slot}".strip()
+        elif time_slot:
+            requested_slot = time_slot
+        elif appointment_date:
+            requested_slot = appointment_date
+        else:
+            requested_slot = doctor.get('nextAvailable') or 'Next available'
+
         patient = {
-            'name': data.get('patientName', ''),
-            'email': data.get('patientEmail', ''),
-            'phone': data.get('patientPhone', '')
+            'name': (data.get('patientName') or '').strip(),
+            'email': (data.get('patientEmail') or '').strip(),
+            'phone': (data.get('patientPhone') or '').strip(),
         }
+
+        # Validate required patient fields
+        missing = [k for k, v in patient.items() if not v]
+        if 'name' in missing or 'email' in missing:
+            return jsonify({'error': f"Missing required patient fields: {', '.join(missing)}"}), 400
 
         # Create booking in MongoDB
         booking = create_booking(
-            doctor_id=int(doctor_id),
+            doctor_id=doctor_id,
             appointment_type=appointment_type,
             requested_slot=requested_slot,
             patient=patient,
         )
-        
+
         patient_email = patient.get('email')
         email_confirmation = False
         if patient_email:
             try:
                 from services.email_service import send_email
                 doctor_name = doctor.get('name')
-                subject = f"Booking Confirmation: {doctor_name}"
-                body = f"Hello {patient.get('name')},\n\nYour appointment with {doctor_name} is confirmed for {requested_slot}.\n\nThank you for choosing Ovacare."
+                subject = f"Booking Confirmation – {doctor_name}"
+                body = (
+                    f"Hello {patient.get('name')},\n\n"
+                    f"Your appointment with {doctor_name} is confirmed for {requested_slot}.\n\n"
+                    "Thank you for choosing OvaCare."
+                )
                 html_body = f"""
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                    <h2 style="color: #d63384;">Booking Confirmed</h2>
-                    <p>Hello {patient.get('name')},</p>
-                    <p>Your appointment with <strong>{doctor_name}</strong> is confirmed for <strong>{requested_slot}</strong>.</p>
-                    <p>Thank you for choosing Ovacare.</p>
+                    <h2 style="color: #d63384;">Booking Confirmed ✅</h2>
+                    <p>Hello <strong>{patient.get('name')}</strong>,</p>
+                    <p>Your appointment with <strong>{doctor_name}</strong> is confirmed for
+                       <strong>{requested_slot}</strong>.</p>
+                    <p>Thank you for choosing OvaCare.</p>
                 </div>
                 """
                 send_email(to_email=patient_email, subject=subject, body=body, html_body=html_body)
                 email_confirmation = True
-            except Exception as e:
-                current_app.logger.error(f"Failed to send confirmation email: {e}")
+            except Exception as email_err:
+                current_app.logger.error(f"Failed to send confirmation email: {email_err}")
 
         return jsonify({
             'success': True,
@@ -256,9 +293,10 @@ def create_booking_endpoint():
         }), 201
 
     except ValueError as ve:
+        current_app.logger.error(f"Create booking ValueError: {ve}")
         return jsonify({'error': str(ve)}), 400
     except Exception as e:
-        current_app.logger.error(f"Create booking error: {str(e)}")
+        current_app.logger.error(f"Create booking error: {e}", exc_info=True)
         return jsonify({'error': 'Internal server error'}), 500
 
 
